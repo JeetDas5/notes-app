@@ -71,7 +71,7 @@ export const tags = pgTable(
     id: uuid("id").defaultRandom().primaryKey(),
     name: varchar("name").notNull(),
   },
-  (table) => [index("name_idx").on(table.name)],
+  (table) => [uniqueIndex("tags_name_idx").on(table.name)],
 );
 
 export const noteTags = pgTable(

@@ -1,5 +1,6 @@
 import db from "@/db";
 import { notes } from "@/db/schema";
+import { attachTagsToNote } from "@/helpers/tag-helper";
 import { getCurrentUser } from "@/lib/user";
 import { createNoteSchema } from "@/validations/notes.validator";
 import { and, desc, eq, ilike } from "drizzle-orm";
@@ -13,6 +14,8 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
     const { searchParams } = new URL(req.url);
+
+    const tag = searchParams.get("tag");
     const query = searchParams.get("query") || "";
 
     const archived = searchParams.get("archived") === "true";
@@ -24,10 +27,25 @@ export async function GET(req: NextRequest) {
         query ? ilike(notes.title, `%${query}%`) : undefined,
       ),
       orderBy: [desc(notes.updatedAt)],
+      with: {
+        noteTags: {
+          with: {
+            tag: true,
+          },
+        },
+      },
     });
 
+    let resultNotes = allNotes;
+    if (tag) {
+      const normalizedTag = tag.trim().toLowerCase();
+      resultNotes = allNotes.filter((n) =>
+        n.noteTags?.some((nt) => nt.tag?.name === normalizedTag),
+      );
+    }
+
     return NextResponse.json(
-      { message: "Notes fetched successfully", data: allNotes },
+      { message: "Notes fetched successfully", data: resultNotes },
       { status: 200 },
     );
   } catch (error) {
@@ -64,6 +82,10 @@ export async function POST(req: NextRequest) {
         userId: user.userId,
       })
       .returning();
+
+    if (validatedData.tags?.length) {
+      await attachTagsToNote(newNote.id, validatedData.tags);
+    }
     return NextResponse.json(
       { message: "Note created successfully", data: newNote },
       { status: 201 },
