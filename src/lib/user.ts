@@ -14,7 +14,10 @@ export async function getCurrentUser() {
   try {
     const decoded = verifyToken(token);
 
-    return decoded;
+    return decoded as {
+      userId: string;
+      email: string;
+    };
   } catch {
     return null;
   }

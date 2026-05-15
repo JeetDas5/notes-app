@@ -22,7 +22,11 @@ export const users = pgTable("users", {
 export const notes = pgTable("notes", {
   id: uuid("id").defaultRandom().primaryKey(),
 
-  userId: uuid("user_id").notNull(),
+  userId: uuid("user_id")
+    .references(() => users.id, {
+      onDelete: "cascade",
+    })
+    .notNull(),
 
   title: varchar("title").default("Untitled"),
 
@@ -36,7 +40,10 @@ export const notes = pgTable("notes", {
 
   createdAt: timestamp("created_at").defaultNow().notNull(),
 
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),
 });
 
 export const tags = pgTable("tags", {
