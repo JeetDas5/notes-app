@@ -1,3 +1,4 @@
+import { relations } from "drizzle-orm";
 import {
   pgTable,
   uuid,
@@ -5,55 +6,111 @@ import {
   timestamp,
   text,
   boolean,
+  index,
+  uniqueIndex,
+  primaryKey,
 } from "drizzle-orm/pg-core";
 
-export const users = pgTable("users", {
-  id: uuid("id").defaultRandom().primaryKey(),
+export const users = pgTable(
+  "users",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
 
-  name: varchar("name").notNull(),
+    name: varchar("name").notNull(),
 
-  email: varchar("email").unique().notNull(),
+    email: varchar("email").unique().notNull(),
 
-  password: varchar("password").notNull(),
+    password: varchar("password").notNull(),
 
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [
+    index("name_idx").on(table.name),
+    uniqueIndex("email_idx").on(table.email),
+  ],
+);
 
-export const notes = pgTable("notes", {
-  id: uuid("id").defaultRandom().primaryKey(),
+export const notes = pgTable(
+  "notes",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
 
-  userId: uuid("user_id")
-    .references(() => users.id, {
-      onDelete: "cascade",
-    })
-    .notNull(),
+    userId: uuid("user_id")
+      .references(() => users.id, {
+        onDelete: "cascade",
+      })
+      .notNull(),
 
-  title: varchar("title").default("Untitled"),
+    title: varchar("title").default("Untitled"),
 
-  content: text("content").default(""),
+    content: text("content").default(""),
 
-  isArchived: boolean("is_archived").default(false),
+    isArchived: boolean("is_archived").default(false),
 
-  isPublic: boolean("is_public").default(false),
+    isPublic: boolean("is_public").default(false),
 
-  shareId: uuid("share_id").defaultRandom(),
+    shareId: uuid("share_id").defaultRandom(),
 
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
 
-  updatedAt: timestamp("updated_at")
-    .defaultNow()
-    .$onUpdate(() => new Date())
-    .notNull(),
-});
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    index("title_idx").on(table.title),
+    index("user_id_idx").on(table.userId),
+    index("share_id_idx").on(table.shareId),
+  ],
+);
 
-export const tags = pgTable("tags", {
-  id: uuid("id").defaultRandom().primaryKey(),
+export const tags = pgTable(
+  "tags",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    name: varchar("name").notNull(),
+  },
+  (table) => [index("name_idx").on(table.name)],
+);
 
-  name: varchar("name").notNull(),
-});
+export const noteTags = pgTable(
+  "note_tags",
+  {
+    noteId: uuid("note_id")
+      .references(() => notes.id, {
+        onDelete: "cascade",
+      })
+      .notNull(),
+    tagId: uuid("tag_id")
+      .references(() => tags.id, {
+        onDelete: "cascade",
+      })
+      .notNull(),
+  },
+  (table) => ({
+    pk: primaryKey({
+      columns: [table.noteId, table.tagId],
+    }),
+  }),
+);
 
-export const noteTags = pgTable("note_tags", {
-  noteId: uuid("note_id").notNull(),
+export const notesRelations = relations(notes, ({ many }) => ({
+  noteTags: many(noteTags),
+}));
 
-  tagId: uuid("tag_id").notNull(),
-});
+export const tagsRelations = relations(tags, ({ many }) => ({
+  noteTags: many(noteTags),
+}));
+
+export const noteTagsRelations = relations(noteTags, ({ one }) => ({
+  note: one(notes, {
+    fields: [noteTags.noteId],
+    references: [notes.id],
+  }),
+
+  tag: one(tags, {
+    fields: [noteTags.tagId],
+    references: [tags.id],
+  }),
+}));
