@@ -6,7 +6,7 @@ import { WorkspaceHeader } from "@/components/workspace-header";
 import { WorkspaceSidebar } from "@/components/workspace-sidebar";
 import { EditorPanel } from "@/components/editor-panel";
 import { AIPanel } from "@/components/ai-panel";
-import { useNotes, useCreateNote, useDebounce, useDeleteNote } from "@/hooks";
+import { useNotes, useCreateNote, useDebounce, useDeleteNote, useUpdateNoteStatus } from "@/hooks";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Plus } from "lucide-react";
 import { CreateNoteDialog } from "@/components/create-note-dialog";
@@ -28,6 +28,7 @@ export function NotesWorkspace() {
   });
   const { mutate: createNote, isPending: isCreateNotePending } = useCreateNote();
   const { mutate: deleteNote } = useDeleteNote();
+  const { mutate: updateNoteStatus } = useUpdateNoteStatus();
 
   const notes = notesData?.data || [];
 
@@ -79,9 +80,16 @@ export function NotesWorkspace() {
   };
 
   const handleShareNote = (noteId: string) => {
-    const url = `${window.location.origin}/notes/${noteId}`;
+    const note = notes.find((n: any) => n.id === noteId);
+    if (!note) return;
+
+    if (!note.isPublic) {
+      updateNoteStatus({ id: noteId, data: { isPublic: true } });
+    }
+
+    const url = `${window.location.origin}/share/${note.shareId}`;
     navigator.clipboard.writeText(url);
-    toast.success("Link copied to clipboard");
+    toast.success("Public link copied to clipboard");
   };
 
   if (isNotesLoading && !notesData && !searchQuery) {

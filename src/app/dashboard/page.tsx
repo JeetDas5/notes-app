@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { useCurrentUser, useNotes, useDebounce } from "@/hooks";
+import { useCurrentUser, useNotes, useDebounce, useUpdateNoteStatus } from "@/hooks";
 import { Input } from "@/components/ui/input";
 import {
   Plus,
@@ -41,6 +41,7 @@ export default function DashboardPage() {
     tag: selectedTag || undefined,
   });
   const { mutate: deleteNote } = useDeleteNote();
+  const { mutate: updateNoteStatus } = useUpdateNoteStatus();
 
   const { data: allNotesData } = useNotes({});
   const allNotes = allNotesData?.data || [];
@@ -50,9 +51,16 @@ export default function DashboardPage() {
   };
 
   const handleShareNote = (id: string) => {
-    const url = `${window.location.origin}/notes/${id}`;
+    const note = notes.find((n: any) => n.id === id);
+    if (!note) return;
+
+    if (!note.isPublic) {
+      updateNoteStatus({ id, data: { isPublic: true } });
+    }
+
+    const url = `${window.location.origin}/share/${note.shareId}`;
     navigator.clipboard.writeText(url);
-    toast.success("Link copied to clipboard");
+    toast.success("Public link copied to clipboard");
   };
 
   const tagCounts = allNotes.reduce((acc: Record<string, number>, note: any) => {
