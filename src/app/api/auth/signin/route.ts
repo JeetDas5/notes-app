@@ -3,8 +3,8 @@ import argon2 from "argon2";
 import { ZodError } from "zod";
 import { NextRequest, NextResponse } from "next/server";
 
-import { signToken } from "@/lib/jwt";
-import { loginSchema } from "@/validations/auth.validator";
+import { signToken } from "@/lib";
+import { loginSchema } from "@/validations";
 
 export async function POST(request: NextRequest) {
   try {

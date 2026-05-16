@@ -4,8 +4,8 @@ import { ZodError } from "zod";
 import { NextRequest, NextResponse } from "next/server";
 
 import { users } from "@/db/schema";
-import { signupSchema } from "@/validations/auth.validator";
-import { signToken } from "@/lib/jwt";
+import { signupSchema } from "@/validations";
+import { signToken } from "@/lib";
 
 export async function POST(request: NextRequest) {
   try {

@@ -51,6 +51,12 @@ export const notes = pgTable(
 
     shareId: uuid("share_id").defaultRandom(),
 
+    aiSummary: text("ai_summary"),
+
+    aiSuggestedTitle: varchar("ai_suggested_title"),
+
+    actionItems: text("action_items"),
+
     createdAt: timestamp("created_at").defaultNow().notNull(),
 
     updatedAt: timestamp("updated_at")
@@ -94,6 +100,30 @@ export const noteTags = pgTable(
     }),
   }),
 );
+
+export const ai_generations = pgTable("ai_generations", {
+  id: uuid("id").defaultRandom().primaryKey(),
+
+  userId: uuid("user_id")
+    .references(() => users.id, {
+      onDelete: "cascade",
+    })
+    .notNull(),
+
+  noteId: uuid("note_id")
+    .references(() => notes.id, {
+      onDelete: "cascade",
+    })
+    .notNull(),
+
+  type: varchar("type", { length: 50 }).notNull(),
+
+  prompt: text("prompt").notNull(),
+
+  response: text("response").notNull(),
+
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
 
 export const notesRelations = relations(notes, ({ many }) => ({
   noteTags: many(noteTags),

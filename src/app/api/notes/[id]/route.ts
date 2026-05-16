@@ -3,8 +3,8 @@ import { NextRequest, NextResponse } from "next/server";
 
 import db from "@/db";
 import { notes } from "@/db/schema";
-import { getCurrentUser } from "@/lib/user";
-import { updateNoteSchema } from "@/validations/notes.validator";
+import { getCurrentUser } from "@/lib";
+import { updateNoteSchema } from "@/validations";
 import { ZodError } from "zod";
 
 type Params = Promise<{

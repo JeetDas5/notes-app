@@ -1,11 +1,12 @@
 import db from "@/db";
 import { notes } from "@/db/schema";
-import { attachTagsToNote } from "@/helpers/tag-helper";
-import { getCurrentUser } from "@/lib/user";
-import { createNoteSchema } from "@/validations/notes.validator";
+import { getCurrentUser } from "@/lib";
+import { attachTagsToNote } from "@/helpers";
+import { createNoteSchema } from "@/validations";
+
+import { ZodError } from "zod";
 import { and, desc, eq, ilike } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
-import { ZodError } from "zod";
 
 export async function GET(req: NextRequest) {
   try {
