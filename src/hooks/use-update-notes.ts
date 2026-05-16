@@ -3,18 +3,20 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { queryKeys } from "@/lib/query-keys";
-import { api } from "@/lib";
+import { axiosInstance } from "@/lib";
 
 export function useUpdateNote(noteId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: UpdateNoteData) =>
-      api<{ message?: string; data: Note }>(`/api/notes/${noteId}`, {
-        method: "PATCH",
+    mutationFn: async (data: any) => {
+      const response = await axiosInstance.patch<{
+        message?: string;
+        data: any;
+      }>(`/api/notes/${noteId}`, data);
+      return response.data;
+    },
 
-        body: JSON.stringify(data),
-      }),
 
     onMutate: async (newData: UpdateNoteData) => {
       await queryClient.cancelQueries({ queryKey: queryKeys.note(noteId) });

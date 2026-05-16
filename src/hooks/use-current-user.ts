@@ -1,19 +1,22 @@
 "use client";
 
-import { api, queryKeys } from "@/lib";
+import { axiosInstance, queryKeys } from "@/lib";
 import { useQuery } from "@tanstack/react-query";
 
 export function useCurrentUser() {
   return useQuery({
     queryKey: queryKeys.me,
-
-    queryFn: () =>
-      api<{
+    queryFn: async () => {
+      const response = await axiosInstance.get<{
         user: {
           id: string;
           name: string;
           email: string;
         };
-      }>("/api/auth/me"),
+      }>("/api/auth/me");
+      return response.data;
+    },
+    retry: false,
   });
 }
+

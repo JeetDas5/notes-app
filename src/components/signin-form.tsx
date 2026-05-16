@@ -5,9 +5,10 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { useSignIn } from "@/hooks";
 
 export function SignInForm() {
-  const [isLoading, setIsLoading] = useState(false);
+  const { mutate: signIn, isPending: isLoading } = useSignIn();
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const validateForm = (formData: FormData) => {
@@ -33,19 +34,13 @@ export function SignInForm() {
       return;
     }
 
-    setIsLoading(true);
-    // TODO: Call your backend API to authenticate the user
-    console.log("[v0] Signing in with:", {
-      email: formData.get("email"),
-      rememberMe: formData.get("rememberMe"),
-    });
+    setErrors({});
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
 
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
-      // TODO: Redirect to dashboard
-    }, 2000);
+    signIn({ email, password });
   };
+
 
   return (
     <div className="space-y-6">

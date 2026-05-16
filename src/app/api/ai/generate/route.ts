@@ -1,6 +1,9 @@
 import db from "@/db";
 import { ai_generations, notes } from "@/db/schema";
-import { buildPrompt, getCurrentUser, openai } from "@/lib";
+import { buildPrompt } from "@/lib/prompt";
+import { getCurrentUser } from "@/lib/user";
+import { openai } from "@/lib/ai";
+
 import { and, eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 

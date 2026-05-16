@@ -5,7 +5,8 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { users } from "@/db/schema";
 import { signupSchema } from "@/validations";
-import { signToken } from "@/lib";
+import { signToken } from "@/lib/jwt";
+
 
 export async function POST(request: NextRequest) {
   try {

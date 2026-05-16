@@ -1,55 +1,56 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import Link from 'next/link'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import { useState } from "react";
+
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useSignUp } from "@/hooks";
+
 
 export function SignUpForm() {
-  const [isLoading, setIsLoading] = useState(false)
-  const [errors, setErrors] = useState<Record<string, string>>({})
+  const { mutate: signUp, isPending: isLoading } = useSignUp();
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const validateForm = (formData: FormData) => {
-    const newErrors: Record<string, string> = {}
-    const fullName = formData.get('fullName') as string
-    const email = formData.get('email') as string
-    const password = formData.get('password') as string
-    const confirmPassword = formData.get('confirmPassword') as string
+    const newErrors: Record<string, string> = {};
+    const fullName = formData.get("fullName") as string;
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+    const confirmPassword = formData.get("confirmPassword") as string;
 
-    if (!fullName.trim()) newErrors.fullName = 'Full name is required'
-    if (!email.trim()) newErrors.email = 'Email is required'
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) newErrors.email = 'Invalid email format'
-    if (!password) newErrors.password = 'Password is required'
-    else if (password.length < 8) newErrors.password = 'Password must be at least 8 characters'
-    if (password !== confirmPassword) newErrors.confirmPassword = 'Passwords do not match'
+    if (!fullName.trim()) newErrors.fullName = "Full name is required";
+    if (!email.trim()) newErrors.email = "Email is required";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+      newErrors.email = "Invalid email format";
+    if (!password) newErrors.password = "Password is required";
+    else if (password.length < 8)
+      newErrors.password = "Password must be at least 8 characters";
+    if (password !== confirmPassword)
+      newErrors.confirmPassword = "Passwords do not match";
 
-    return newErrors
-  }
+    return newErrors;
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    const formData = new FormData(e.currentTarget)
-    const newErrors = validateForm(formData)
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const newErrors = validateForm(formData);
 
     if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors)
-      return
+      setErrors(newErrors);
+      return;
     }
 
-    setIsLoading(true)
-    // TODO: Call your backend API to create the user account
-    console.log('[v0] Signing up with:', {
-      fullName: formData.get('fullName'),
-      email: formData.get('email'),
-    })
-    
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false)
-      // TODO: Redirect to dashboard or verification page
-    }, 2000)
-  }
+    setErrors({});
+    const name = formData.get("fullName") as string;
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+
+    signUp({ name, email, password });
+  };
+
 
   return (
     <div className="space-y-6">

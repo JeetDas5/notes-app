@@ -1,17 +1,14 @@
 "use client";
 
-import { api } from "@/lib";
+import { axiosInstance } from "@/lib";
 import { useMutation } from "@tanstack/react-query";
 
 export function useGenerateAI() {
   return useMutation({
-    mutationFn: (noteId: string) =>
-      api("/api/ai/generate", {
-        method: "POST",
+    mutationFn: async (noteId: string) => {
+      const response = await axiosInstance.post("/api/ai/generate", { noteId });
+      return response.data;
+    },
 
-        body: JSON.stringify({
-          noteId,
-        }),
-      }),
   });
 }

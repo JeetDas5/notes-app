@@ -1,17 +1,17 @@
 "use client";
 
-import { api } from "@/lib";
+import { axiosInstance } from "@/lib";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export function useCreateNote() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: { title?: string; content?: string }) =>
-      api("/api/notes", {
-        method: "POST",
-        body: JSON.stringify(data),
-      }),
+    mutationFn: async (data: { title?: string; content?: string }) => {
+      const response = await axiosInstance.post("/api/notes", data);
+      return response.data;
+    },
+
 
     onSuccess: () => {
       queryClient.invalidateQueries({

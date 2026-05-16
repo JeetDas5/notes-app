@@ -1,6 +1,7 @@
 import db from "@/db";
 import { notes } from "@/db/schema";
-import { getCurrentUser } from "@/lib";
+import { getCurrentUser } from "@/lib/user";
+
 import { and, eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 

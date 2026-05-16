@@ -3,7 +3,8 @@ import { NextRequest, NextResponse } from "next/server";
 
 import db from "@/db";
 import { notes } from "@/db/schema";
-import { getCurrentUser } from "@/lib";
+import { getCurrentUser } from "@/lib/user";
+
 import { updateNoteSchema } from "@/validations";
 import { ZodError } from "zod";
 

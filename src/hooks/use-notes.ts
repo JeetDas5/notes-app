@@ -1,6 +1,6 @@
 "use client";
 
-import { api, queryKeys } from "@/lib";
+import { axiosInstance, queryKeys } from "@/lib";
 import { useQuery } from "@tanstack/react-query";
 
 export function useNotes({
@@ -22,6 +22,12 @@ export function useNotes({
 
   return useQuery({
     queryKey: queryKeys.notes(query, archived),
-    queryFn: () => api<{ notes: Note[] }>(`/api/notes?${params.toString()}`),
+    queryFn: async () => {
+      const response = await axiosInstance.get<{ notes: any[] }>(
+        `/api/notes?${params.toString()}`
+      );
+      return response.data;
+    },
   });
 }
+

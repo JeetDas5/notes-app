@@ -1,5 +1,6 @@
 import db from "@/db";
-import { verifyToken } from "@/lib";
+import { verifyToken } from "@/lib/jwt";
+
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
