@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useGenerateAI, useUpdateNote } from "@/hooks";
@@ -20,7 +20,14 @@ export function AIPanel({ isOpen = true, noteId }: AIPanelProps) {
   const [summary, setSummary] = useState<string | null>(null);
   const [suggestedTitle, setSuggestedTitle] = useState<string | null>(null);
   const { mutate: generateAI, isPending: isLoading } = useGenerateAI();
-  const { mutate: updateNote, isPending: isUpdating } = useUpdateNote(noteId || "");
+  const { mutate: updateNote, isPending: isUpdating } = useUpdateNote(
+    noteId || ""
+  );
+
+  useEffect(() => {
+    setSummary(null);
+    setSuggestedTitle(null);
+  }, [noteId]);
 
   const handleSummarize = () => {
     if (!noteId || isLoading) return;

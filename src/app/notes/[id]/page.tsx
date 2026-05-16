@@ -2,6 +2,6 @@
 
 import { NotesWorkspace } from "@/components/notes-workspace";
 
-export default function NotesPage() {
+export default function NoteIdPage() {
   return <NotesWorkspace />;
 }
