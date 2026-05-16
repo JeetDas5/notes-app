@@ -1,9 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useNotes } from "@/hooks";
 import {
   Plus,
   Search,
@@ -22,6 +22,8 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface WorkspaceSidebarProps {
+  notes: any[];
+  isLoading: boolean;
   selectedNoteId?: string;
   onSelectNote?: (id: string) => void;
   onCreateNote?: () => void;
@@ -30,15 +32,14 @@ interface WorkspaceSidebarProps {
 }
 
 export function WorkspaceSidebar({
+  notes,
+  isLoading,
   selectedNoteId,
   onSelectNote,
   onCreateNote,
   searchQuery,
   onSearchChange,
 }: WorkspaceSidebarProps) {
-  const { data: notesData, isLoading } = useNotes({ query: searchQuery });
-  const notes = notesData?.data || [];
-
   const formatTime = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
@@ -167,7 +168,7 @@ function NoteItem({ note, isSelected, onSelect, formatTime }: any) {
       onClick={onSelect}
       className={`w-full group text-left p-3 rounded-xl transition-all relative ${
         isSelected
-          ? "bg-accent/[0.08] border border-accent/20 shadow-sm"
+          ? "bg-accent border border-accent/20 shadow-sm"
           : "hover:bg-muted/50 border border-transparent"
       }`}
     >
@@ -177,18 +178,20 @@ function NoteItem({ note, isSelected, onSelect, formatTime }: any) {
       <div className="flex justify-between items-start mb-1">
         <h4
           className={`text-sm font-bold truncate pr-4 ${
-            isSelected ? "text-accent" : "text-foreground"
+            isSelected ? "text-gray-500" : "text-foreground"
           }`}
         >
           {note.title || "Untitled Note"}
         </h4>
+      </div>
+      <div className="flex justify-between items-end gap-2">
+        <p className="text-[11px] text-muted-foreground line-clamp-1 leading-relaxed">
+          {note.content || "No content yet"}
+        </p>
         <span className="text-[10px] font-medium text-muted-foreground/60 whitespace-nowrap pt-0.5">
           {formatTime(note.updatedAt)}
         </span>
       </div>
-      <p className="text-[11px] text-muted-foreground line-clamp-1 leading-relaxed">
-        {note.content || "No content yet"}
-      </p>
 
       <div className="absolute right-1 top-2 opacity-0 group-hover:opacity-100 transition-opacity">
         <DropdownMenu>
@@ -230,4 +233,3 @@ function SidebarAction({ icon: Icon, label, count }: any) {
     </button>
   );
 }
-

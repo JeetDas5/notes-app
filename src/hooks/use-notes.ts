@@ -6,9 +6,11 @@ import { useQuery } from "@tanstack/react-query";
 export function useNotes({
   query,
   archived,
+  tag,
 }: {
   query?: string;
   archived?: boolean;
+  tag?: string;
 }) {
   const params = new URLSearchParams();
 
@@ -19,9 +21,12 @@ export function useNotes({
   if (archived) {
     params.set("archived", "true");
   }
+  if (tag) {
+    params.set("tag", tag);
+  }
 
   return useQuery({
-    queryKey: queryKeys.notes(query, archived),
+    queryKey: queryKeys.notes(query, archived, tag),
     queryFn: async () => {
       const response = await axiosInstance.get<{ data: any[] }>(
         `/api/notes?${params.toString()}`

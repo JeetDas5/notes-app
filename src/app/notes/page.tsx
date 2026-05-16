@@ -5,7 +5,7 @@ import { WorkspaceHeader } from "@/components/workspace-header";
 import { WorkspaceSidebar } from "@/components/workspace-sidebar";
 import { EditorPanel } from "@/components/editor-panel";
 import { AIPanel } from "@/components/ai-panel";
-import { useNotes, useCreateNote } from "@/hooks";
+import { useNotes, useCreateNote, useDebounce } from "@/hooks";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Plus } from "lucide-react";
 import { CreateNoteDialog } from "@/components/create-note-dialog";
@@ -13,10 +13,13 @@ import { CreateNoteDialog } from "@/components/create-note-dialog";
 export default function NotesPage() {
   const [selectedNoteId, setSelectedNoteId] = useState<string | undefined>();
   const [searchQuery, setSearchQuery] = useState("");
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
   const [showAIPanel, setShowAIPanel] = useState(true);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
-  const { data: notesData, isLoading: isNotesLoading } = useNotes({ query: searchQuery });
+  const { data: notesData, isLoading: isNotesLoading } = useNotes({
+    query: debouncedSearchQuery,
+  });
   const { mutate: createNote, isPending: isCreateNotePending } = useCreateNote();
 
   const notes = notesData?.data || [];
@@ -33,8 +36,8 @@ export default function NotesPage() {
     setIsCreateDialogOpen(true);
   };
 
-  const handleConfirmCreate = (title: string, content: string) => {
-    createNote({ title, content }, {
+  const handleConfirmCreate = (title: string, content: string, tags: string[]) => {
+    createNote({ title, content, tags }, {
       onSuccess: (data) => {
         setSelectedNoteId(data.data.id);
         setIsCreateDialogOpen(false);
@@ -46,7 +49,7 @@ export default function NotesPage() {
     setSelectedNoteId(id);
   };
 
-  if (isNotesLoading && !notesData) {
+  if (isNotesLoading && !notesData && !searchQuery) {
     return <NotesSkeleton />;
   }
 
@@ -58,6 +61,8 @@ export default function NotesPage() {
 
       <div className="flex flex-1 overflow-hidden">
         <WorkspaceSidebar
+          notes={notes}
+          isLoading={isNotesLoading}
           selectedNoteId={selectedNoteId}
           onSelectNote={handleSelectNote}
           onCreateNote={handleCreateNote}

@@ -9,24 +9,30 @@ import { Textarea } from "@/components/ui/textarea";
 interface CreateNoteDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onCreate: (title: string, content: string) => void;
+  onCreate: (title: string, content: string, tags: string[]) => void;
   isCreating: boolean;
 }
 
 export function CreateNoteDialog({ isOpen, onClose, onCreate, isCreating }: CreateNoteDialogProps) {
   const [title, setTitle] = useState("New Note");
   const [content, setContent] = useState("");
+  const [tags, setTags] = useState("");
 
   useEffect(() => {
     if (isOpen) {
       setTitle("New Note");
       setContent("");
+      setTags("");
     }
   }, [isOpen]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onCreate(title, content);
+    const tagsArray = tags
+      .split(",")
+      .map((tag) => tag.trim())
+      .filter((tag) => tag !== "");
+    onCreate(title, content, tagsArray);
   };
 
   return (
@@ -54,6 +60,14 @@ export function CreateNoteDialog({ isOpen, onClose, onCreate, isCreating }: Crea
               value={content}
               onChange={(e) => setContent(e.target.value)}
               className="resize-none h-32 bg-background/50"
+            />
+          </div>
+          <div className="space-y-2">
+            <Input
+              placeholder="Tags (comma separated)"
+              value={tags}
+              onChange={(e) => setTags(e.target.value)}
+              className="bg-background/50 text-xs"
             />
           </div>
           <DialogFooter>

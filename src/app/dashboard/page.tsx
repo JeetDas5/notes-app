@@ -15,6 +15,7 @@ import {
   Search,
   ChevronRight,
   NotebookPen,
+  Tag,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -22,12 +23,31 @@ import { ThemeToggle } from "@/components/theme-toggle";
 
 export default function DashboardPage() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const { data: userData, isLoading: isUserLoading } = useCurrentUser();
   const { data: notesData, isLoading: isNotesLoading } = useNotes({
     query: debouncedSearchQuery,
+    tag: selectedTag || undefined,
   });
+
+  const { data: allNotesData } = useNotes({});
+  const allNotes = allNotesData?.data || [];
+
+  const tagCounts = allNotes.reduce((acc: Record<string, number>, note: any) => {
+    note.noteTags?.forEach((nt: any) => {
+      const tagName = nt.tag?.name;
+      if (tagName) {
+        acc[tagName] = (acc[tagName] || 0) + 1;
+      }
+    });
+    return acc;
+  }, {});
+
+  const mostUsedTags = Object.entries(tagCounts)
+    .sort((a: any, b: any) => b[1] - a[1])
+    .slice(0, 10);
 
   const user = userData?.user;
   const notes = notesData?.data || [];
@@ -62,7 +82,7 @@ export default function DashboardPage() {
     });
   };
 
-  if (isUserLoading || isNotesLoading) {
+  if ((isUserLoading || isNotesLoading) && !notesData && !searchQuery && !selectedTag) {
     return <DashboardSkeleton />;
   }
 
@@ -169,11 +189,53 @@ export default function DashboardPage() {
           />
         </div>
 
+        {mostUsedTags.length > 0 && (
+          <div className="mb-10">
+            <div className="flex items-center gap-2 mb-4">
+              <Tag className="w-4 h-4 text-accent" />
+              <h3 className="text-sm font-bold uppercase tracking-widest text-muted-foreground/80">
+                Most Used Tags
+              </h3>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Button
+                variant={selectedTag === null ? "default" : "outline"}
+                size="sm"
+                onClick={() => setSelectedTag(null)}
+                className={`rounded-full px-4 h-8 text-xs font-bold transition-all ${
+                  selectedTag === null
+                    ? "bg-accent text-accent-foreground shadow-lg shadow-accent/20"
+                    : "border-border/50 hover:bg-accent/5 hover:border-accent/50"
+                }`}
+              >
+                All Notes
+              </Button>
+              {mostUsedTags.map(([tag]: any) => (
+                <Button
+                  key={tag}
+                  variant={selectedTag === tag ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setSelectedTag(selectedTag === tag ? null : tag)}
+                  className={`rounded-full px-4 h-8 text-xs font-bold transition-all ${
+                    selectedTag === tag
+                      ? "bg-accent text-accent-foreground shadow-lg shadow-accent/20"
+                      : "border-border/50 hover:bg-accent/5 hover:border-accent/50"
+                  }`}
+                >
+                  #{tag}
+                </Button>
+              ))}
+            </div>
+          </div>
+        )}
+
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <h3 className="text-xl font-bold tracking-tight">
               {searchQuery
                 ? `Search Results for "${searchQuery}"`
+                : selectedTag
+                ? `Notes tagged with "#${selectedTag}"`
                 : "Recent Notes"}
             </h3>
             <Button
@@ -220,15 +282,20 @@ export default function DashboardPage() {
                           </p>
                         </div>
                         <div className="mt-6 pt-4 border-t border-border/50 flex items-center justify-between">
-                          <div className="flex -space-x-1.5">
-                            {[1, 2].map((i) => (
-                              <div
-                                key={i}
-                                className="w-6 h-6 rounded-full border-2 border-background bg-muted flex items-center justify-center text-[10px] font-bold uppercase"
+                          <div className="flex flex-wrap gap-1">
+                            {note.noteTags?.slice(0, 2).map((nt: any) => (
+                              <span
+                                key={nt.tag?.id}
+                                className="px-1.5 py-0.5 rounded-md bg-accent/10 text-accent text-[9px] font-bold uppercase tracking-wider"
                               >
-                                {String.fromCharCode(65 + i)}
-                              </div>
+                                {nt.tag?.name}
+                              </span>
                             ))}
+                            {note.noteTags?.length > 2 && (
+                              <span className="text-[9px] font-bold text-muted-foreground/60 pt-0.5">
+                                +{note.noteTags.length - 2}
+                              </span>
+                            )}
                           </div>
                           <span className="text-[10px] font-bold text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
                             EDIT NOW <ChevronRight className="w-2.5 h-2.5" />
@@ -255,6 +322,8 @@ export default function DashboardPage() {
               <p className="text-muted-foreground max-w-xs mb-8">
                 {searchQuery
                   ? `We couldn't find any notes matching "${searchQuery}". Try a different search term.`
+                  : selectedTag
+                  ? `No notes found with the tag "#${selectedTag}".`
                   : "Create your first AI-powered note to start organizing your thoughts more effectively."}
               </p>
               <Button

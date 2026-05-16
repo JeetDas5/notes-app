@@ -78,23 +78,7 @@ export function EditorPanel({
 
   return (
     <div className="flex flex-col h-full bg-background/50">
-      <div className="flex items-center justify-between p-3 border-b border-border/50 bg-background/40 backdrop-blur-md">
-        <div className="flex items-center gap-1.5">
-          <ToolbarButton icon={Bold} />
-          <ToolbarButton icon={Italic} />
-          <ToolbarButton icon={Underline} />
-          <div className="w-px h-4 bg-border/50 mx-1.5" />
-          <ToolbarButton icon={List} />
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-8 text-xs font-bold gap-2 text-accent hover:bg-accent/10 hover:text-accent"
-          >
-            <Sparkles className="w-3.5 h-3.5" />
-            AI Format
-          </Button>
-        </div>
-
+      <div className="flex items-center justify-end p-3 border-b border-border/50 bg-background/40 backdrop-blur-md">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">
             {isSaving ? (
@@ -121,7 +105,7 @@ export function EditorPanel({
         </div>
       </div>
 
-      <div className="flex-1 overflow-hidden flex flex-col p-6 max-w-4xl mx-auto w-full">
+      <div className="flex-1 overflow-hidden flex flex-col py-4 px-5 max-w-4xl mx-auto w-full">
         <Input
           value={title}
           onChange={handleTitleChange}
@@ -132,7 +116,7 @@ export function EditorPanel({
           value={content}
           onChange={handleContentChange}
           placeholder="Start typing your masterpiece..."
-          className="flex-1 resize-none bg-transparent font-sans text-base leading-relaxed p-0 border-0 focus-visible:ring-0 placeholder:text-muted-foreground/30 selection:bg-accent/20"
+          className="flex-1 resize-none bg-transparent font-sans text-base leading-relaxed p-2 border-0 focus-visible:ring-0 placeholder:text-muted-foreground/30 selection:bg-accent/20"
         />
       </div>
     </div>
