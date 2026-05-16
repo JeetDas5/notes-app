@@ -1,13 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Plus,
   Search,
-  Trash2,
+  Archive,
   Users,
   Pin,
   MoreHorizontal,
@@ -26,10 +27,14 @@ interface WorkspaceSidebarProps {
   isLoading: boolean;
   selectedNoteId?: string;
   onSelectNote?: (id: string) => void;
+  onCreateNote?: () => void;
   onDeleteNote?: (id: string) => void;
   onShareNote?: (id: string) => void;
+  onToggleArchive?: (id: string) => void;
   searchQuery: string;
   onSearchChange: (query: string) => void;
+  view: "all" | "archived";
+  onViewChange: (view: "all" | "archived") => void;
 }
 
 export function WorkspaceSidebar({
@@ -40,9 +45,13 @@ export function WorkspaceSidebar({
   onCreateNote,
   onDeleteNote,
   onShareNote,
+  onToggleArchive,
   searchQuery,
   onSearchChange,
+  view,
+  onViewChange,
 }: WorkspaceSidebarProps) {
+
   const formatTime = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
@@ -57,8 +66,12 @@ export function WorkspaceSidebar({
     return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
   };
 
-  const pinnedNotes = notes.filter((n: any) => n.isPinned);
-  const unpinnedNotes = notes.filter((n: any) => !n.isPinned);
+  const filteredNotes = notes.filter((n: any) => 
+    view === "archived" ? n.isArchived : !n.isArchived
+  );
+
+  const pinnedNotes = filteredNotes.filter((n: any) => n.isPinned);
+  const unpinnedNotes = filteredNotes.filter((n: any) => !n.isPinned);
 
   return (
     <div className="flex flex-col h-full bg-muted/20 dark:bg-card/40 backdrop-blur-xl border-r border-border/50 w-72 lg:w-80 shrink-0">
@@ -116,6 +129,7 @@ export function WorkspaceSidebar({
                         onSelect={() => onSelectNote?.(note.id)}
                         onDelete={() => onDeleteNote?.(note.id)}
                         onShare={() => onShareNote?.(note.id)}
+                        onToggleArchive={() => onToggleArchive?.(note.id)}
                         formatTime={formatTime}
                       />
                     ))}
@@ -138,6 +152,7 @@ export function WorkspaceSidebar({
                       onSelect={() => onSelectNote?.(note.id)}
                       onDelete={() => onDeleteNote?.(note.id)}
                       onShare={() => onShareNote?.(note.id)}
+                      onToggleArchive={() => onToggleArchive?.(note.id)}
                       formatTime={formatTime}
                     />
                   ))}
@@ -161,8 +176,19 @@ export function WorkspaceSidebar({
 
       <div className="p-3 border-t border-border/50">
         <div className="flex flex-col gap-1">
-          <SidebarAction icon={Trash2} label="Trash" count={0} />
-          <SidebarAction icon={Users} label="Shared" count={0} />
+          <SidebarAction 
+            icon={FileText} 
+            label="All Notes" 
+            isActive={view === "all"}
+            onClick={() => onViewChange("all")}
+          />
+          <SidebarAction 
+            icon={Archive} 
+            label="Archived" 
+            isActive={view === "archived"}
+            count={notes.filter((n: any) => n.isArchived).length} 
+            onClick={() => onViewChange("archived")}
+          />
         </div>
       </div>
     </div>
@@ -175,6 +201,7 @@ function NoteItem({
   onSelect,
   onDelete,
   onShare,
+  onToggleArchive,
   formatTime,
 }: any) {
   return (
@@ -230,6 +257,15 @@ function NoteItem({
               Share Link
             </DropdownMenuItem>
             <DropdownMenuItem
+              className="text-xs"
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggleArchive();
+              }}
+            >
+              {note.isArchived ? "Unarchive" : "Archive"}
+            </DropdownMenuItem>
+            <DropdownMenuItem
               className="text-xs text-destructive"
               onClick={(e) => {
                 e.stopPropagation();
@@ -245,12 +281,19 @@ function NoteItem({
   );
 }
 
-function SidebarAction({ icon: Icon, label, count }: any) {
+function SidebarAction({ icon: Icon, label, count, isActive, onClick }: any) {
   return (
-    <button className="flex items-center justify-between px-3 py-2 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-all w-full">
+    <button 
+      onClick={onClick}
+      className={`flex items-center justify-between px-3 py-2 rounded-lg transition-all w-full ${
+        isActive 
+          ? "bg-accent/10 text-accent font-bold" 
+          : "text-muted-foreground hover:bg-muted hover:text-foreground"
+      }`}
+    >
       <div className="flex items-center gap-2.5">
-        <Icon className="w-4 h-4" />
-        <span className="text-xs font-semibold">{label}</span>
+        <Icon className={`w-4 h-4 ${isActive ? "text-accent" : ""}`} />
+        <span className="text-xs">{label}</span>
       </div>
       {count > 0 && (
         <span className="text-[10px] font-bold bg-muted-foreground/10 px-1.5 py-0.5 rounded-full">

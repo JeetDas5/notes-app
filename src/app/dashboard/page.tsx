@@ -63,6 +63,20 @@ export default function DashboardPage() {
     toast.success("Public link copied to clipboard");
   };
 
+  const handleToggleArchive = (id: string) => {
+    const note = notes.find((n: any) => n.id === id);
+    if (!note) return;
+
+    updateNoteStatus(
+      { id, data: { isArchived: !note.isArchived } },
+      {
+        onSuccess: () => {
+          toast.success(note.isArchived ? "Note unarchived" : "Note archived");
+        },
+      }
+    );
+  };
+
   const tagCounts = allNotes.reduce((acc: Record<string, number>, note: any) => {
     note.noteTags?.forEach((nt: any) => {
       const tagName = nt.tag?.name;
@@ -78,7 +92,7 @@ export default function DashboardPage() {
     .slice(0, 10);
 
   const user = userData?.user;
-  const notes = notesData?.data || [];
+  const notes = (notesData?.data || []).filter((n: any) => !n.isArchived);
 
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -321,6 +335,14 @@ export default function DashboardPage() {
                                     }}
                                   >
                                     Share Link
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      handleToggleArchive(note.id);
+                                    }}
+                                  >
+                                    {note.isArchived ? "Unarchive" : "Archive"}
                                   </DropdownMenuItem>
                                   <DropdownMenuItem
                                     className="text-destructive"

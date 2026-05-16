@@ -19,12 +19,14 @@ export function NotesWorkspace() {
 
   const [selectedNoteId, setSelectedNoteId] = useState<string | undefined>(id);
   const [searchQuery, setSearchQuery] = useState("");
+  const [view, setView] = useState<"all" | "archived">("all");
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
   const [showAIPanel, setShowAIPanel] = useState(true);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
   const { data: notesData, isLoading: isNotesLoading } = useNotes({
     query: debouncedSearchQuery,
+    archived: view === "archived",
   });
   const { mutate: createNote, isPending: isCreateNotePending } = useCreateNote();
   const { mutate: deleteNote } = useDeleteNote();
@@ -92,6 +94,20 @@ export function NotesWorkspace() {
     toast.success("Public link copied to clipboard");
   };
 
+  const handleToggleArchive = (noteId: string) => {
+    const note = notes.find((n: any) => n.id === noteId);
+    if (!note) return;
+
+    updateNoteStatus(
+      { id: noteId, data: { isArchived: !note.isArchived } },
+      {
+        onSuccess: () => {
+          toast.success(note.isArchived ? "Note unarchived" : "Note archived");
+        },
+      }
+    );
+  };
+
   if (isNotesLoading && !notesData && !searchQuery) {
     return <NotesSkeleton />;
   }
@@ -111,8 +127,11 @@ export function NotesWorkspace() {
           onCreateNote={handleCreateNote}
           onDeleteNote={handleDeleteNote}
           onShareNote={handleShareNote}
+          onToggleArchive={handleToggleArchive}
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
+          view={view}
+          onViewChange={setView}
         />
 
         <div className="flex-1 flex flex-col min-w-0 bg-background/50 dark:bg-background/20">
