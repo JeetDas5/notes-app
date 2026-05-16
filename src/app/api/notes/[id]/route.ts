@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import db from "@/db";
 import { notes } from "@/db/schema";
 import { getCurrentUser } from "@/lib/user";
+import { syncNoteTags } from "@/helpers";
 
 import { updateNoteSchema } from "@/validations";
 import { ZodError } from "zod";
@@ -24,6 +25,13 @@ export async function GET(req: NextRequest, { params }: { params: Params }) {
 
     const note = await db.query.notes.findFirst({
       where: and(eq(notes.id, id), eq(notes.userId, user.userId)),
+      with: {
+        noteTags: {
+          with: {
+            tag: true,
+          },
+        },
+      },
     });
 
     if (!note) {
@@ -67,14 +75,20 @@ export async function PATCH(req: NextRequest, { params }: { params: Params }) {
 
     const validatedData = updateNoteSchema.parse(body);
 
+    const { tags: tagNames, ...noteUpdateData } = validatedData;
+
     const [updatedNote] = await db
       .update(notes)
       .set({
-        ...validatedData,
+        ...noteUpdateData,
         updatedAt: new Date(),
       })
       .where(and(eq(notes.id, id), eq(notes.userId, user.userId)))
       .returning();
+
+    if (tagNames !== undefined) {
+      await syncNoteTags(id, tagNames);
+    }
 
     if (!updatedNote) {
       return NextResponse.json(

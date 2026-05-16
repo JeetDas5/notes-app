@@ -140,6 +140,7 @@ export function NotesWorkspace() {
               key={selectedNote.id}
               initialTitle={selectedNote.title || ""}
               initialContent={selectedNote.content || ""}
+              initialTags={selectedNote.noteTags?.map((nt: any) => nt.tag?.name) || []}
               noteId={selectedNote.id}
             />
           ) : (

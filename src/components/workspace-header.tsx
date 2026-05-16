@@ -12,15 +12,15 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useLogout, useCurrentUser } from "@/hooks";
-import { 
-  Share2, 
-  History, 
-  Settings, 
-  User, 
+import {
+  Share2,
+  History,
+  Settings,
+  User,
   LogOut,
   NotebookPen,
   LayoutDashboard,
-  ChevronDown
+  ChevronDown,
 } from "lucide-react";
 
 interface WorkspaceHeaderProps {
@@ -32,7 +32,7 @@ export function WorkspaceHeader({
 }: WorkspaceHeaderProps) {
   const { data: userData } = useCurrentUser();
   const { mutate: logout } = useLogout();
-  
+
   const user = userData?.user;
   const userInitials = (user?.name || user?.email || "U")
     .split("@")[0]
@@ -55,59 +55,46 @@ export function WorkspaceHeader({
         </h1>
       </div>
 
-      <div className="hidden md:flex items-center gap-2">
-        <Button variant="ghost" size="sm" className="h-8 text-xs font-semibold gap-2 text-muted-foreground hover:text-foreground">
-          <History className="w-3.5 h-3.5" />
-          History
-        </Button>
-        <Button variant="ghost" size="sm" className="h-8 text-xs font-semibold gap-2 text-muted-foreground hover:text-foreground">
-          <Share2 className="w-3.5 h-3.5" />
-          Share
-        </Button>
-      </div>
-
       <div className="flex items-center gap-3 ml-4">
         <ThemeToggle />
         <div className="h-4 w-px bg-border/50" />
-        
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button className="flex items-center gap-2 hover:bg-muted/50 rounded-lg pl-1 pr-2 py-1 transition-all outline-none border border-transparent focus:border-accent/20">
               <Avatar className="h-7 w-7 border border-border/50">
-                <AvatarFallback className="bg-accent/10 text-accent text-[10px] font-bold uppercase">
+                <AvatarFallback className="bg-accent/10 text-gray-500 text-[10px] font-bold uppercase">
                   {userInitials}
                 </AvatarFallback>
               </Avatar>
               <ChevronDown className="w-3 h-3 text-muted-foreground" />
             </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56 p-1.5 rounded-xl border-border/50 shadow-2xl">
+          <DropdownMenuContent
+            align="end"
+            className="w-56 p-1.5 rounded-xl border-border/50 shadow-2xl"
+          >
             <div className="px-2 py-2 mb-1">
-              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">Signed in as</p>
+              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">
+                Signed in as
+              </p>
               <p className="text-sm font-bold truncate">{user?.email}</p>
             </div>
             <DropdownMenuSeparator className="bg-border/50" />
-            
+
             <DropdownMenuItem asChild className="rounded-lg cursor-pointer">
-              <Link href="/dashboard" className="flex items-center gap-2.5 py-2">
+              <Link
+                href="/dashboard"
+                className="flex items-center gap-2.5 py-2"
+              >
                 <LayoutDashboard className="w-4 h-4 text-muted-foreground" />
                 <span className="text-xs font-semibold">Dashboard</span>
               </Link>
             </DropdownMenuItem>
-            
-            <DropdownMenuItem className="rounded-lg cursor-pointer py-2">
-              <User className="w-4 h-4 text-muted-foreground" />
-              <span className="text-xs font-semibold">Profile</span>
-            </DropdownMenuItem>
-            
-            <DropdownMenuItem className="rounded-lg cursor-pointer py-2">
-              <Settings className="w-4 h-4 text-muted-foreground" />
-              <span className="text-xs font-semibold">Settings</span>
-            </DropdownMenuItem>
-            
+
             <DropdownMenuSeparator className="bg-border/50" />
-            
-            <DropdownMenuItem 
+
+            <DropdownMenuItem
               onClick={() => logout()}
               className="rounded-lg cursor-pointer py-2 text-destructive focus:bg-destructive/10 focus:text-destructive"
             >
@@ -120,4 +107,3 @@ export function WorkspaceHeader({
     </header>
   );
 }
-
