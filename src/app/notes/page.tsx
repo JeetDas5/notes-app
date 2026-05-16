@@ -1,58 +1,128 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { WorkspaceHeader } from '@/components/workspace-header'
-import { WorkspaceSidebar } from '@/components/workspace-sidebar'
-import { EditorPanel } from '@/components/editor-panel'
-import { AIPanel } from '@/components/ai-panel'
+import { useState, useEffect } from "react";
+import { WorkspaceHeader } from "@/components/workspace-header";
+import { WorkspaceSidebar } from "@/components/workspace-sidebar";
+import { EditorPanel } from "@/components/editor-panel";
+import { AIPanel } from "@/components/ai-panel";
+import { useNotes, useCreateNote } from "@/hooks";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Plus } from "lucide-react";
+import { CreateNoteDialog } from "@/components/create-note-dialog";
 
 export default function NotesPage() {
-  const [selectedNoteId, setSelectedNoteId] = useState<string>('1')
-  const [showAIPanel, setShowAIPanel] = useState(true)
+  const [selectedNoteId, setSelectedNoteId] = useState<string | undefined>();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showAIPanel, setShowAIPanel] = useState(true);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+
+  const { data: notesData, isLoading: isNotesLoading } = useNotes({ query: searchQuery });
+  const { mutate: createNote, isPending: isCreateNotePending } = useCreateNote();
+
+  const notes = notesData?.data || [];
+  
+  useEffect(() => {
+    if (notes.length > 0 && !selectedNoteId && !searchQuery) {
+      setSelectedNoteId(notes[0].id);
+    }
+  }, [notes, selectedNoteId, searchQuery]);
+
+  const selectedNote = notes.find((n: any) => n.id === selectedNoteId);
 
   const handleCreateNote = () => {
-    console.log('[v0] Creating new note')
-    // TODO: Create a new note via your backend API
-  }
+    setIsCreateDialogOpen(true);
+  };
+
+  const handleConfirmCreate = (title: string, content: string) => {
+    createNote({ title, content }, {
+      onSuccess: (data) => {
+        setSelectedNoteId(data.data.id);
+        setIsCreateDialogOpen(false);
+      }
+    });
+  };
 
   const handleSelectNote = (id: string) => {
-    setSelectedNoteId(id)
-    console.log('[v0] Selected note:', id)
-  }
+    setSelectedNoteId(id);
+  };
 
-  const handleSaveNote = (content: string) => {
-    console.log('[v0] Note saved:', content)
-    // TODO: Save to backend API
+  if (isNotesLoading && !notesData) {
+    return <NotesSkeleton />;
   }
 
   return (
-    <div className="flex h-screen flex-col">
-      {/* Header */}
+    <div className="flex h-screen flex-col bg-background">
       <WorkspaceHeader
-        noteTitle="Project Kickoff"
-        userEmail="john@example.com"
+        noteTitle={selectedNote?.title || "No Note Selected"}
       />
 
-      {/* Main Content */}
       <div className="flex flex-1 overflow-hidden">
-        {/* Sidebar */}
         <WorkspaceSidebar
           selectedNoteId={selectedNoteId}
           onSelectNote={handleSelectNote}
           onCreateNote={handleCreateNote}
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
         />
 
-        {/* Editor */}
-        <div className="flex-1 flex flex-col min-w-0">
-          <EditorPanel
-            initialContent="This is your note content. Start typing or use the AI assistant to help format your notes."
-            onSave={handleSaveNote}
-          />
+        <div className="flex-1 flex flex-col min-w-0 bg-background/50 dark:bg-background/20">
+          {selectedNote ? (
+            <EditorPanel
+              key={selectedNote.id}
+              initialTitle={selectedNote.title || ""}
+              initialContent={selectedNote.content || ""}
+              noteId={selectedNote.id}
+            />
+          ) : (
+            <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground p-8 text-center">
+              <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4 opacity-50">
+                <Plus className="w-8 h-8" />
+              </div>
+              <h3 className="text-lg font-semibold text-foreground/70">
+                {selectedNoteId ? "Loading note..." : "No note selected"}
+              </h3>
+              <p className="max-w-xs mt-2 text-sm">
+                {selectedNoteId 
+                  ? "We're just fetching your new note." 
+                  : "Select a note from the sidebar or create a new one to start your masterpiece."}
+              </p>
+            </div>
+          )}
         </div>
 
-        {/* AI Panel */}
-        {showAIPanel && <AIPanel isOpen={showAIPanel} />}
+        {showAIPanel && selectedNote && (
+          <AIPanel 
+            isOpen={showAIPanel} 
+            noteId={selectedNote.id}
+          />
+        )}
+      </div>
+
+      <CreateNoteDialog
+        isOpen={isCreateDialogOpen}
+        onClose={() => setIsCreateDialogOpen(false)}
+        onCreate={handleConfirmCreate}
+        isCreating={isCreateNotePending}
+      />
+    </div>
+  );
+}
+
+function NotesSkeleton() {
+  return (
+    <div className="flex h-screen flex-col">
+      <Skeleton className="h-14 w-full" />
+      <div className="flex flex-1 overflow-hidden">
+        <Skeleton className="h-full w-80 shrink-0" />
+        <div className="flex-1 p-8 space-y-6">
+          <Skeleton className="h-10 w-1/3" />
+          <Skeleton className="h-[600px] w-full" />
+        </div>
+        <Skeleton className="h-full w-80 shrink-0" />
       </div>
     </div>
-  )
+  );
 }
+
+
+

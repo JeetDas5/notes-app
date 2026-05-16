@@ -23,7 +23,7 @@ export function useNotes({
   return useQuery({
     queryKey: queryKeys.notes(query, archived),
     queryFn: async () => {
-      const response = await axiosInstance.get<{ notes: any[] }>(
+      const response = await axiosInstance.get<{ data: any[] }>(
         `/api/notes?${params.toString()}`
       );
       return response.data;

@@ -1,126 +1,138 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Separator } from '@/components/ui/separator'
-
-interface Message {
-  id: string
-  role: 'user' | 'assistant'
-  content: string
-  timestamp: Date
-}
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { useGenerateAI, useUpdateNote } from "@/hooks";
+import { 
+  BrainCircuit, 
+  Bot, 
+  Zap,
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface AIPanelProps {
-  isOpen?: boolean
+  isOpen?: boolean;
+  noteId?: string;
 }
 
-export function AIPanel({ isOpen = true }: AIPanelProps) {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      role: 'assistant',
-      content: 'Hello! I\'m your AI assistant. I can help you format notes, answer questions, or provide suggestions.',
-      timestamp: new Date(),
-    },
-  ])
-  const [input, setInput] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
+export function AIPanel({ isOpen = true, noteId }: AIPanelProps) {
+  const [summary, setSummary] = useState<string | null>(null);
+  const [suggestedTitle, setSuggestedTitle] = useState<string | null>(null);
+  const { mutate: generateAI, isPending: isLoading } = useGenerateAI();
+  const { mutate: updateNote, isPending: isUpdating } = useUpdateNote(noteId || "");
 
-  const handleSendMessage = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!input.trim()) return
+  const handleSummarize = () => {
+    if (!noteId || isLoading) return;
 
-    // Add user message
-    const userMessage: Message = {
-      id: Math.random().toString(),
-      role: 'user',
-      content: input,
-      timestamp: new Date(),
-    }
-    setMessages(prev => [...prev, userMessage])
-    setInput('')
-    setIsLoading(true)
+    generateAI(noteId, {
+      onSuccess: (data) => {
+        setSummary(data.data.summary);
+        setSuggestedTitle(data.data.suggested_title || data.data.aiSuggestedTitle);
+      },
+    });
+  };
 
-    // TODO: Call your AI API (Claude) to get response
-    console.log('[v0] Sending to AI:', input)
+  const handleApplyTitle = () => {
+    if (!suggestedTitle || !noteId) return;
+    updateNote({ title: suggestedTitle });
+  };
 
-    // Simulate AI response
-    setTimeout(() => {
-      const assistantMessage: Message = {
-        id: Math.random().toString(),
-        role: 'assistant',
-        content: 'That\'s a great point! I\'d suggest organizing your notes by topic. This will help with searching and finding relevant information later.',
-        timestamp: new Date(),
-      }
-      setMessages(prev => [...prev, assistantMessage])
-      setIsLoading(false)
-    }, 1000)
-  }
-
-  if (!isOpen) return null
+  if (!isOpen) return null;
 
   return (
-    <div className="flex flex-col h-full bg-card/50 border-l border-border w-80">
-      {/* Header */}
-      <div className="p-4 border-b border-border">
-        <h3 className="font-semibold text-sm">AI Assistant</h3>
-        <p className="text-xs text-muted-foreground mt-1">Powered by Claude</p>
+    <div className="flex flex-col h-full bg-card/40 backdrop-blur-2xl border-l border-border/50 w-80 lg:w-96 shrink-0 shadow-2xl">
+      <div className="p-4 border-b border-border/50 bg-background/20">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-2xl bg-accent/10 flex items-center justify-center text-accent shadow-inner">
+            <BrainCircuit className="w-5 h-5" />
+          </div>
+          <div>
+            <h3 className="font-bold text-sm tracking-tight">AI Insights</h3>
+            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-0.5">Note Summarizer</p>
+          </div>
+        </div>
       </div>
 
-      {/* Messages */}
       <ScrollArea className="flex-1">
-        <div className="p-4 space-y-4">
-          {messages.map(message => (
-            <div key={message.id} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-              <div
-                className={`max-w-xs px-3 py-2 rounded-lg text-sm ${
-                  message.role === 'user'
-                    ? 'bg-accent text-accent-foreground rounded-br-none'
-                    : 'bg-muted text-foreground rounded-bl-none'
-                }`}
-              >
-                {message.content}
+        <div className="p-6 space-y-6 flex flex-col h-full">
+          {!summary && !isLoading && (
+            <div className="text-center py-10 flex flex-col items-center justify-center space-y-4">
+              <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center opacity-50">
+                <Bot className="w-8 h-8 text-muted-foreground" />
               </div>
+              <p className="text-sm text-muted-foreground max-w-[200px]">
+                Generate a quick summary of your note to grasp the key concepts.
+              </p>
             </div>
-          ))}
+          )}
+
           {isLoading && (
-            <div className="flex justify-start">
-              <div className="bg-muted text-foreground rounded-lg rounded-bl-none px-3 py-2 text-sm">
-                <div className="flex gap-1">
-                  <span className="inline-block w-2 h-2 rounded-full bg-muted-foreground animate-bounce" />
-                  <span className="inline-block w-2 h-2 rounded-full bg-muted-foreground animate-bounce" style={{ animationDelay: '0.2s' }} />
-                  <span className="inline-block w-2 h-2 rounded-full bg-muted-foreground animate-bounce" style={{ animationDelay: '0.4s' }} />
+            <div className="flex justify-center py-10">
+              <div className="flex flex-col items-center gap-4">
+                <div className="flex gap-1.5 items-center h-5">
+                  <span className="w-2 h-2 rounded-full bg-accent animate-bounce" />
+                  <span className="w-2 h-2 rounded-full bg-accent animate-bounce [animation-delay:0.2s]" />
+                  <span className="w-2 h-2 rounded-full bg-accent animate-bounce [animation-delay:0.4s]" />
                 </div>
+                <p className="text-xs text-muted-foreground font-medium animate-pulse">Analyzing your note...</p>
               </div>
             </div>
           )}
+
+          <AnimatePresence>
+            {summary && !isLoading && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="space-y-6"
+              >
+                {suggestedTitle && (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Zap className="w-4 h-4 text-accent" />
+                      <h4 className="font-bold text-sm">Suggested Title</h4>
+                    </div>
+                    <div className="flex items-center gap-2 p-3 rounded-xl bg-accent/5 border border-accent/10">
+                      <span className="text-sm font-semibold flex-1 truncate" title={suggestedTitle}>{suggestedTitle}</span>
+                      <Button 
+                        size="sm" 
+                        variant="secondary" 
+                        onClick={handleApplyTitle}
+                        disabled={isUpdating}
+                        className="h-7 text-[10px] uppercase tracking-wider font-bold"
+                      >
+                        {isUpdating ? "..." : "Apply"}
+                      </Button>
+                    </div>
+                  </div>
+                )}
+                
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Zap className="w-4 h-4 text-accent" />
+                    <h4 className="font-bold text-sm">Summary</h4>
+                  </div>
+                  <div className="p-4 rounded-xl bg-accent/5 border border-accent/10 text-sm leading-relaxed text-foreground shadow-sm">
+                    {summary}
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </ScrollArea>
 
-      {/* Input */}
-      <Separator />
-      <form onSubmit={handleSendMessage} className="p-4 space-y-2">
-        <div className="flex gap-2">
-          <Input
-            placeholder="Ask me anything..."
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            disabled={isLoading}
-            className="flex-1 h-9"
-          />
-          <Button
-            type="submit"
-            size="sm"
-            className="bg-accent hover:bg-accent/90"
-            disabled={isLoading || !input.trim()}
-          >
-            Send
-          </Button>
-        </div>
-      </form>
+      <div className="p-4 bg-background/20 border-t border-border/50">
+        <Button 
+          onClick={handleSummarize}
+          disabled={isLoading || !noteId}
+          className="w-full bg-accent hover:bg-accent/90 text-accent-foreground font-bold shadow-sm h-10"
+        >
+          <Zap className="w-4 h-4 mr-2" />
+          {isLoading ? "Summarizing..." : "Summarize Note"}
+        </Button>
+      </div>
     </div>
-  )
+  );
 }

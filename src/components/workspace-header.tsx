@@ -1,79 +1,123 @@
-'use client'
+"use client";
 
-import Link from 'next/link'
-import { Button } from '@/components/ui/button'
-import { ThemeToggle } from './theme-toggle'
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "./theme-toggle";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { useLogout, useCurrentUser } from "@/hooks";
+import { 
+  Share2, 
+  History, 
+  Settings, 
+  User, 
+  LogOut,
+  NotebookPen,
+  LayoutDashboard,
+  ChevronDown
+} from "lucide-react";
 
 interface WorkspaceHeaderProps {
-  noteTitle?: string
-  userEmail?: string
+  noteTitle?: string;
 }
 
 export function WorkspaceHeader({
-  noteTitle = 'Untitled Note',
-  userEmail = 'user@example.com',
+  noteTitle = "Untitled Note",
 }: WorkspaceHeaderProps) {
-  const userInitials = userEmail
-    .split('@')[0]
-    .split('.')
-    .map(part => part.charAt(0).toUpperCase())
-    .join('')
+  const { data: userData } = useCurrentUser();
+  const { mutate: logout } = useLogout();
+  
+  const user = userData?.user;
+  const userInitials = (user?.name || user?.email || "U")
+    .split("@")[0]
+    .split(".")
+    .map((part) => part.charAt(0).toUpperCase())
+    .join("")
+    .slice(0, 2);
 
   return (
-    <header className="flex items-center justify-between h-16 border-b border-border px-6 bg-card/50 backdrop-blur-sm">
-      {/* Left side - Note title */}
-      <div className="flex-1">
-        <h1 className="text-lg font-semibold truncate">{noteTitle}</h1>
+    <header className="flex items-center justify-between h-14 border-b border-border/50 px-4 bg-background/60 backdrop-blur-xl sticky top-0 z-50">
+      <div className="flex items-center gap-4 flex-1 min-w-0">
+        <Link href="/dashboard" className="flex items-center gap-2 group">
+          <div className="w-7 h-7 rounded-lg bg-accent flex items-center justify-center text-accent-foreground shadow-lg shadow-accent/20 group-hover:rotate-6 transition-transform">
+            <NotebookPen className="w-3.5 h-3.5" />
+          </div>
+        </Link>
+        <div className="h-4 w-px bg-border/50 hidden sm:block" />
+        <h1 className="text-sm font-bold truncate max-w-[200px] sm:max-w-md">
+          {noteTitle}
+        </h1>
       </div>
 
-      {/* Center - Actions */}
-      <div className="flex items-center gap-2">
-        <ThemeToggle />
-        <Button variant="outline" size="sm">
-          Share
-        </Button>
-        <Button variant="outline" size="sm">
+      <div className="hidden md:flex items-center gap-2">
+        <Button variant="ghost" size="sm" className="h-8 text-xs font-semibold gap-2 text-muted-foreground hover:text-foreground">
+          <History className="w-3.5 h-3.5" />
           History
         </Button>
+        <Button variant="ghost" size="sm" className="h-8 text-xs font-semibold gap-2 text-muted-foreground hover:text-foreground">
+          <Share2 className="w-3.5 h-3.5" />
+          Share
+        </Button>
       </div>
 
-      {/* Right side - User menu */}
-      <div className="flex items-center gap-2 ml-4">
+      <div className="flex items-center gap-3 ml-4">
+        <ThemeToggle />
+        <div className="h-4 w-px bg-border/50" />
+        
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="flex items-center gap-2 hover:bg-muted rounded-lg p-2 transition">
-              <Avatar className="h-8 w-8">
-                <AvatarImage src={undefined} />
-                <AvatarFallback className="text-sm">{userInitials}</AvatarFallback>
+            <button className="flex items-center gap-2 hover:bg-muted/50 rounded-lg pl-1 pr-2 py-1 transition-all outline-none border border-transparent focus:border-accent/20">
+              <Avatar className="h-7 w-7 border border-border/50">
+                <AvatarFallback className="bg-accent/10 text-accent text-[10px] font-bold uppercase">
+                  {userInitials}
+                </AvatarFallback>
               </Avatar>
-              <span className="text-sm hidden sm:block">{userEmail}</span>
+              <ChevronDown className="w-3 h-3 text-muted-foreground" />
             </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56">
-            <DropdownMenuItem>
-              <span>Profile</span>
+          <DropdownMenuContent align="end" className="w-56 p-1.5 rounded-xl border-border/50 shadow-2xl">
+            <div className="px-2 py-2 mb-1">
+              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">Signed in as</p>
+              <p className="text-sm font-bold truncate">{user?.email}</p>
+            </div>
+            <DropdownMenuSeparator className="bg-border/50" />
+            
+            <DropdownMenuItem asChild className="rounded-lg cursor-pointer">
+              <Link href="/dashboard" className="flex items-center gap-2.5 py-2">
+                <LayoutDashboard className="w-4 h-4 text-muted-foreground" />
+                <span className="text-xs font-semibold">Dashboard</span>
+              </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem>
-              <span>Settings</span>
+            
+            <DropdownMenuItem className="rounded-lg cursor-pointer py-2">
+              <User className="w-4 h-4 text-muted-foreground" />
+              <span className="text-xs font-semibold">Profile</span>
             </DropdownMenuItem>
-            <DropdownMenuItem>
-              <span>Workspace</span>
+            
+            <DropdownMenuItem className="rounded-lg cursor-pointer py-2">
+              <Settings className="w-4 h-4 text-muted-foreground" />
+              <span className="text-xs font-semibold">Settings</span>
             </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-destructive">
-              <span>Sign out</span>
+            
+            <DropdownMenuSeparator className="bg-border/50" />
+            
+            <DropdownMenuItem 
+              onClick={() => logout()}
+              className="rounded-lg cursor-pointer py-2 text-destructive focus:bg-destructive/10 focus:text-destructive"
+            >
+              <LogOut className="w-4 h-4" />
+              <span className="text-xs font-bold">Sign out</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
     </header>
-  )
+  );
 }
+
