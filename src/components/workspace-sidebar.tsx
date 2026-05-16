@@ -26,7 +26,8 @@ interface WorkspaceSidebarProps {
   isLoading: boolean;
   selectedNoteId?: string;
   onSelectNote?: (id: string) => void;
-  onCreateNote?: () => void;
+  onDeleteNote?: (id: string) => void;
+  onShareNote?: (id: string) => void;
   searchQuery: string;
   onSearchChange: (query: string) => void;
 }
@@ -37,6 +38,8 @@ export function WorkspaceSidebar({
   selectedNoteId,
   onSelectNote,
   onCreateNote,
+  onDeleteNote,
+  onShareNote,
   searchQuery,
   onSearchChange,
 }: WorkspaceSidebarProps) {
@@ -111,6 +114,8 @@ export function WorkspaceSidebar({
                         note={note}
                         isSelected={selectedNoteId === note.id}
                         onSelect={() => onSelectNote?.(note.id)}
+                        onDelete={() => onDeleteNote?.(note.id)}
+                        onShare={() => onShareNote?.(note.id)}
                         formatTime={formatTime}
                       />
                     ))}
@@ -131,6 +136,8 @@ export function WorkspaceSidebar({
                       note={note}
                       isSelected={selectedNoteId === note.id}
                       onSelect={() => onSelectNote?.(note.id)}
+                      onDelete={() => onDeleteNote?.(note.id)}
+                      onShare={() => onShareNote?.(note.id)}
                       formatTime={formatTime}
                     />
                   ))}
@@ -162,7 +169,14 @@ export function WorkspaceSidebar({
   );
 }
 
-function NoteItem({ note, isSelected, onSelect, formatTime }: any) {
+function NoteItem({
+  note,
+  isSelected,
+  onSelect,
+  onDelete,
+  onShare,
+  formatTime,
+}: any) {
   return (
     <button
       onClick={onSelect}
@@ -206,9 +220,22 @@ function NoteItem({ note, isSelected, onSelect, formatTime }: any) {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-40">
-            <DropdownMenuItem className="text-xs">Pin Note</DropdownMenuItem>
-            <DropdownMenuItem className="text-xs">Duplicate</DropdownMenuItem>
-            <DropdownMenuItem className="text-xs text-destructive">
+            <DropdownMenuItem
+              className="text-xs"
+              onClick={(e) => {
+                e.stopPropagation();
+                onShare();
+              }}
+            >
+              Share Link
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              className="text-xs text-destructive"
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete();
+              }}
+            >
               Delete
             </DropdownMenuItem>
           </DropdownMenuContent>

@@ -6,10 +6,11 @@ import { WorkspaceHeader } from "@/components/workspace-header";
 import { WorkspaceSidebar } from "@/components/workspace-sidebar";
 import { EditorPanel } from "@/components/editor-panel";
 import { AIPanel } from "@/components/ai-panel";
-import { useNotes, useCreateNote, useDebounce } from "@/hooks";
+import { useNotes, useCreateNote, useDebounce, useDeleteNote } from "@/hooks";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Plus } from "lucide-react";
 import { CreateNoteDialog } from "@/components/create-note-dialog";
+import { toast } from "sonner";
 
 export function NotesWorkspace() {
   const params = useParams();
@@ -26,6 +27,7 @@ export function NotesWorkspace() {
     query: debouncedSearchQuery,
   });
   const { mutate: createNote, isPending: isCreateNotePending } = useCreateNote();
+  const { mutate: deleteNote } = useDeleteNote();
 
   const notes = notesData?.data || [];
 
@@ -65,6 +67,23 @@ export function NotesWorkspace() {
     router.push(`/notes/${noteId}`);
   };
 
+  const handleDeleteNote = (noteId: string) => {
+    deleteNote(noteId, {
+      onSuccess: () => {
+        if (selectedNoteId === noteId) {
+          setSelectedNoteId(undefined);
+          router.push("/notes");
+        }
+      },
+    });
+  };
+
+  const handleShareNote = (noteId: string) => {
+    const url = `${window.location.origin}/notes/${noteId}`;
+    navigator.clipboard.writeText(url);
+    toast.success("Link copied to clipboard");
+  };
+
   if (isNotesLoading && !notesData && !searchQuery) {
     return <NotesSkeleton />;
   }
@@ -82,6 +101,8 @@ export function NotesWorkspace() {
           selectedNoteId={selectedNoteId}
           onSelectNote={handleSelectNote}
           onCreateNote={handleCreateNote}
+          onDeleteNote={handleDeleteNote}
+          onShareNote={handleShareNote}
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
         />

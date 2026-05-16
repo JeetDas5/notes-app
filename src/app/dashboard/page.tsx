@@ -16,10 +16,19 @@ import {
   ChevronRight,
   NotebookPen,
   Tag,
+  MoreHorizontal,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { useDeleteNote } from "@/hooks";
+import { toast } from "sonner";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export default function DashboardPage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -31,9 +40,20 @@ export default function DashboardPage() {
     query: debouncedSearchQuery,
     tag: selectedTag || undefined,
   });
+  const { mutate: deleteNote } = useDeleteNote();
 
   const { data: allNotesData } = useNotes({});
   const allNotes = allNotesData?.data || [];
+
+  const handleDeleteNote = (id: string) => {
+    deleteNote(id);
+  };
+
+  const handleShareNote = (id: string) => {
+    const url = `${window.location.origin}/notes/${id}`;
+    navigator.clipboard.writeText(url);
+    toast.success("Link copied to clipboard");
+  };
 
   const tagCounts = allNotes.reduce((acc: Record<string, number>, note: any) => {
     note.noteTags?.forEach((nt: any) => {
@@ -270,9 +290,42 @@ export default function DashboardPage() {
                             <div className="p-2 rounded-lg bg-accent/10 text-accent group-hover:scale-110 transition-transform duration-300">
                               <FileText className="w-4 h-4" />
                             </div>
-                            <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">
-                              {formatDate(note.updatedAt)}
-                            </span>
+                            <div className="flex items-center gap-2">
+                              <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">
+                                {formatDate(note.updatedAt)}
+                              </span>
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-8 w-8 rounded-lg hover:bg-accent/10 text-muted-foreground hover:text-accent opacity-0 group-hover:opacity-100 transition-all"
+                                    onClick={(e) => e.preventDefault()}
+                                  >
+                                    <MoreHorizontal className="w-4 h-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuItem
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      handleShareNote(note.id);
+                                    }}
+                                  >
+                                    Share Link
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    className="text-destructive"
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      handleDeleteNote(note.id);
+                                    }}
+                                  >
+                                    Delete
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </div>
                           </div>
                           <h4 className="font-bold text-lg mb-2 group-hover:text-gray-500 transition-colors line-clamp-1">
                             {note.title}
