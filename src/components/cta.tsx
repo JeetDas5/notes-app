@@ -34,7 +34,7 @@ export function CTA() {
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button
-                size="2xl"
+                size="lg"
                 asChild
                 className="bg-accent hover:bg-accent/90 text-accent-foreground font-bold shadow-xl shadow-accent/20 group"
               >
@@ -44,7 +44,7 @@ export function CTA() {
                 </Link>
               </Button>
               <Button
-                size="2xl"
+                size="lg"
                 variant="outline"
                 asChild
                 className="font-bold backdrop-blur-sm"

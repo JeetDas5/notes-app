@@ -17,6 +17,7 @@ type Note = {
   actionItems?: string;
   createdAt: string;
   updatedAt: string;
+  tags?: string[];
 };
 
 type UpdateNoteData = {
@@ -24,6 +25,7 @@ type UpdateNoteData = {
   content?: string;
   isArchived?: boolean;
   isPublic?: boolean;
+  tags?: string[];
 }
 
 type NoteQueryData = { note?: Note; data?: Note } | undefined;

@@ -56,7 +56,7 @@ export function Hero() {
           className="mt-10 flex flex-col sm:flex-row gap-4 justify-center"
         >
           <Button
-            size="xl"
+            size="lg"
             asChild
             className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold px-8 shadow-lg shadow-accent/20 transition-all hover:scale-105 active:scale-95"
           >
@@ -65,7 +65,7 @@ export function Hero() {
             </Link>
           </Button>
           <Button
-            size="xl"
+            size="lg"
             variant="outline"
             asChild
             className="px-8 transition-all hover:bg-accent/5"
