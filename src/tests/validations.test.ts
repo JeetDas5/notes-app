@@ -1,5 +1,10 @@
 import { describe, it, expect } from "vitest";
-import { signupSchema, loginSchema, createNoteSchema, updateNoteSchema } from "../validations";
+import {
+  signupSchema,
+  loginSchema,
+  createNoteSchema,
+  updateNoteSchema,
+} from "../validations";
 
 describe("Validation Schemas", () => {
   describe("signupSchema", () => {
@@ -26,7 +31,9 @@ describe("Validation Schemas", () => {
       expect(result.success).toBe(false);
       if (!result.success) {
         const issues = result.error.issues;
-        expect(issues[0].message).toBe("Name must be at least 2 characters long");
+        expect(issues[0].message).toBe(
+          "Name must be at least 2 characters long"
+        );
       }
     });
 
@@ -54,7 +61,9 @@ describe("Validation Schemas", () => {
       expect(result.success).toBe(false);
       if (!result.success) {
         const issues = result.error.issues;
-        expect(issues[0].message).toBe("Password must be at least 6 characters long");
+        expect(issues[0].message).toBe(
+          "Password must be at least 6 characters long"
+        );
       }
     });
   });
@@ -80,7 +89,9 @@ describe("Validation Schemas", () => {
       const result = loginSchema.safeParse(payload);
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.issues[0].message).toBe("Please provide a valid email address");
+        expect(result.error.issues[0].message).toBe(
+          "Please provide a valid email address"
+        );
       }
     });
 
@@ -92,7 +103,9 @@ describe("Validation Schemas", () => {
       const result = loginSchema.safeParse(payload);
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.issues[0].message).toBe("Password must be at least 6 characters long");
+        expect(result.error.issues[0].message).toBe(
+          "Password must be at least 6 characters long"
+        );
       }
     });
   });
