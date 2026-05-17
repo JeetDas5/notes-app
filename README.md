@@ -1,36 +1,239 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 📝 Collaborative AI Notes App
 
-## Getting Started
+A premium, state-of-the-art **Real-Time Collaborative Notes Management Application** enhanced with **AI-Powered Insights**. Built using Next.js 16 (App Router), React 19, Tailwind CSS 4, Drizzle ORM, Neon PostgreSQL, Socket.io, and OpenAI.
 
-First, run the development server:
+This application allows multiple users to collaborate on notes simultaneously with live cursor tracking, active editor indicators, role-based permissions, and robust AI text summarization, title generation, and action item extraction.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+---
+
+## ✨ Key Features
+
+### 🔐 Secure Authentication & Session Management
+* **Argon2 Hashing**: Cryptographically secure password hashing.
+* **JWT Authorization**: Custom JSON Web Token stateless sessions.
+* **Unified Profile Navigation**: Accessible profile dropdown for user email details and fast logout across pages.
+
+### 👥 Real-Time Collaborative Workspace
+* **Socket.io Integration**: Low-latency, full-duplex WebSocket server wrapper for high-frequency text synchronization.
+* **Collaborator Presence**: Visual headers displaying other active users working on the same note.
+* **Live Cursor Tracking**: Real-time cursor positions displayed using individual user-assigned colors.
+* **Access Control & Roles**: Assign `Editor` or `Viewer` permissions to collaborators. Viewers are restricted from making changes, and their roles are dynamically represented.
+
+### 🤖 OpenAI-Powered Insights
+* **AI Summary Panel**: Dynamic, single-click summaries generated from note content.
+* **Action Items Extraction**: Extract actionable to-do lists from the text automatically.
+* **AI-Suggested Titles**: Generates premium title recommendations based on text semantics.
+* **Generation History**: AI prompts and responses are tracked and cached.
+
+### 📂 Notes Organization & Search
+* **Note Archiving**: Archive/unarchive notes with a single click.
+* **Tag Management**: Dynamically create, assign, and manage multi-tag categorization.
+* **Global Search**: Search through owned and shared notes on the dashboard dynamically.
+* **Dynamic Sidebar**: Access notes, categories, archives, and tags in a responsive view.
+
+---
+
+## 🛠️ Tech Stack
+
+| Category | Technology | Purpose |
+| :--- | :--- | :--- |
+| **Framework & Engine** | Next.js 16.2.6 (App Router) / React 19.2.4 | UI rendering, client-side routing, compilation, and API hosting. |
+| **Styling & Motion** | Tailwind CSS 4, Framer Motion, next-themes | Elegant typography (Inter/Geist), glassmorphism, responsive sidebar, light/dark mode, and micro-animations. |
+| **Database** | Neon Serverless PostgreSQL | Managed cloud relational database with low latency. |
+| **ORM** | Drizzle ORM (drizzle-orm / drizzle-kit) | Type-safe SQL querying, schema declaration, and migrations. |
+| **Realtime Sync** | Socket.IO (socket.io / socket.io-client) | WebSocket server context tracking, room creation, and user cursors. |
+| **State & Data Cache** | Zustand & TanStack React Query 5 | Global client state and cached API fetch requests. |
+| **AI Processing** | OpenAI Node SDK | AI insights (Summarization, Title suggestion, Action items). |
+| **Components** | Radix UI, Shadcn, Lucide React, Hugeicons | Accessible overlay primitives, rich premium icons, dialogs, and notifications. |
+| **Security & Forms** | Argon2, jsonwebtoken, React Hook Form, Zod | Password hashing, token authorization, forms validation. |
+
+---
+
+## 🏛️ System Architecture
+
+The application is structured around a **monolithic Next.js codebase** hosted on a custom Node.js HTTP server. This server boots Next.js alongside a Socket.IO WebSocket server, allowing regular REST API endpoints and low-latency real-time collaboration channels to coexist on the same port.
+
+### 🔄 Client-Server Communication Flow
+
+```mermaid
+graph TD
+    Client[Web Client: React 19 + Next.js] <-->|HTTP REST / JSON APIs| NextAPI[Next.js API Routes]
+    Client <-->|WebSockets: Socket.io| SocketServer[Socket.io Custom Server]
+    NextAPI <-->|Drizzle ORM| DB[(Neon PostgreSQL DB)]
+    NextAPI <-->|OpenAI Node SDK| OpenAI[OpenAI API]
+    SocketServer <-->|In-Memory Rooms| SyncState[Live Cursor Presence & Document Sync]
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 🗄️ Database Entity-Relationship Diagram (ERD)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```mermaid
+erDiagram
+    USERS ||--o{ NOTES : "owns"
+    USERS ||--o{ NOTES_COLLABORATOR : "participates"
+    NOTES ||--o{ NOTES_COLLABORATOR : "has"
+    NOTES ||--o{ NOTE_TAGS : "categorized by"
+    TAGS ||--o{ NOTE_TAGS : "linked to"
+    USERS ||--o{ AI_GENERATIONS : "requests"
+    NOTES ||--o{ AI_GENERATIONS : "generates for"
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+    USERS {
+        uuid id PK
+        varchar name
+        varchar email UK
+        varchar password
+        timestamp created_at
+    }
 
-## Learn More
+    NOTES {
+        uuid id PK
+        uuid user_id FK
+        varchar title
+        text content
+        boolean is_archived
+        boolean is_public
+        uuid share_id
+        text ai_summary
+        varchar ai_suggested_title
+        text action_items
+        timestamp created_at
+        timestamp updated_at
+    }
 
-To learn more about Next.js, take a look at the following resources:
+    TAGS {
+        uuid id PK
+        varchar name UK
+    }
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+    NOTE_TAGS {
+        uuid note_id PK, FK
+        uuid tag_id PK, FK
+    }
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+    NOTES_COLLABORATOR {
+        uuid note_id PK, FK
+        uuid user_id PK, FK
+        role role "editor | viewer"
+        timestamp created_at
+        timestamp updated_at
+    }
 
-## Deploy on Vercel
+    AI_GENERATIONS {
+        uuid id PK
+        uuid user_id FK
+        uuid note_id FK
+        varchar type
+        text prompt
+        text response
+        timestamp created_at
+    }
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🔑 Environment Variables Configuration
+
+To run the application, create a `.env` file in the root directory. You can copy the template from `.env.example`:
+
+| Environment Variable | Description | Example / Required Format |
+| :--- | :--- | :--- |
+| `DATABASE_URL` | Neon PostgreSQL Serverless Connection URI. | `postgresql://neondb_owner:...@ep-pooler.aws.neon.tech/neondb?sslmode=require` |
+| `JWT_SECRET` | Super secret token/hash key for JWT signing. | `any_high_entropy_alphanumeric_string` |
+| `OPENAI_API_KEY` | Your personal API key from OpenAI developer platform. | `sk-proj-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX` |
+| `NODE_ENV` | Environment identifier. | `development` or `production` |
+
+---
+
+## 🚀 How to Start the Project
+
+### 1. Prerequisites
+Ensure you have **Node.js** (version 20 or higher) and a package manager (**Bun**, **NPM**, or **PNPM**) installed.
+
+### 2. Clone and Install Dependencies
+```bash
+# Clone the repository
+git clone <repository-url>
+cd notes-app
+
+# Install project packages
+npm install
+# or
+bun install
+# or
+pnpm install
+```
+
+### 3. Setup Your Database Environment
+Drizzle Kit is used to sync schemas. Boot up a database on Neon, fill in your `DATABASE_URL` in `.env`, and apply the database schemas:
+
+```bash
+# Synchronize your PostgreSQL schema directly
+npx drizzle-kit push
+# or using Bun:
+bunx drizzle-kit push
+```
+
+Alternatively, you can run Drizzle's migration commands to keep track of schema version control:
+```bash
+npx drizzle-kit generate
+npx drizzle-kit migrate
+```
+
+### 4. Running the Development Server
+
+> [!IMPORTANT]
+> Since the project uses a custom Socket.IO layer, **you must execute the custom dev script** rather than the default `next dev` to enable WebSocket features.
+
+```bash
+# Start Next.js AND the Socket.io WebSocket server on port 3000
+npm run dev:socket
+# or
+bun dev:socket
+```
+
+Open [http://localhost:3000](http://localhost:3000) on your browser to view the page.
+
+### 5. Build and Deploy (Production)
+```bash
+# Build the Next.js production bundles
+npm run build
+
+# Start the application in production mode with socket.io support
+npm run start:socket
+```
+
+---
+
+## 📸 Screenshots (Coming Soon)
+
+Here are the placeholders for primary application views. Once visual elements are recorded or screens are finalized, updated screenshots can be added here.
+
+````carousel
+```
+============================================
+              LANDING PAGE
+============================================
+* Modern hero section with glowing borders.
+* Comprehensive features list.
+* CTA and theme switches.
+```
+<!-- slide -->
+```
+============================================
+            DASHBOARD VIEW
+============================================
+* Interactive sidebar (My Notes, Archive).
+* User Avatar Profile Dropdown with Logout.
+* Tag cloud filters.
+* Note search filter input.
+```
+<!-- slide -->
+```
+============================================
+         COLLABORATIVE WORKSPACE
+============================================
+* Shared editor.
+* Real-time cursor coordinates and colors.
+* Collaborative indicators and role badge.
+* Summarize panel.
+```
+````
