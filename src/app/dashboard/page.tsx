@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useEffect, useRef } from "react";
@@ -14,6 +13,8 @@ import {
   useUpdateNoteStatus,
   useLogout,
 } from "@/hooks";
+import { Note } from "@/types";
+
 import { Input } from "@/components/ui/input";
 import {
   Plus,
@@ -63,7 +64,7 @@ export default function DashboardPage() {
   };
 
   const handleShareNote = (id: string) => {
-    const note = notes.find((n: any) => n.id === id);
+    const note = notes.find((n: Note) => n.id === id);
     if (!note) return;
 
     if (!note.isPublic) {
@@ -76,7 +77,7 @@ export default function DashboardPage() {
   };
 
   const handleToggleArchive = (id: string) => {
-    const note = notes.find((n: any) => n.id === id);
+    const note = notes.find((n: Note) => n.id === id);
     if (!note) return;
 
     updateNoteStatus(
@@ -90,8 +91,8 @@ export default function DashboardPage() {
   };
 
   const tagCounts = allNotes.reduce(
-    (acc: Record<string, number>, note: any) => {
-      note.noteTags?.forEach((nt: any) => {
+    (acc: Record<string, number>, note: Note) => {
+      note.noteTags?.forEach((nt) => {
         const tagName = nt.tag?.name;
         if (tagName) {
           acc[tagName] = (acc[tagName] || 0) + 1;
@@ -103,7 +104,7 @@ export default function DashboardPage() {
   );
 
   const mostUsedTags = Object.entries(tagCounts)
-    .sort((a: any, b: any) => b[1] - a[1])
+    .sort((a, b) => b[1] - a[1])
     .slice(0, 10);
 
   const user = userData?.user;
@@ -114,7 +115,7 @@ export default function DashboardPage() {
     .join("")
     .slice(0, 2);
 
-  const notes = (notesData?.data || []).filter((n: any) => !n.isArchived);
+  const notes = (notesData?.data || []).filter((n: Note) => !n.isArchived);
 
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -274,7 +275,7 @@ export default function DashboardPage() {
             title="Recent Edits"
             value={
               notes.filter(
-                (n: any) =>
+                (n: Note) =>
                   new Date(n.updatedAt).getTime() > Date.now() - 86400000 * 7
               ).length
             }
@@ -305,7 +306,7 @@ export default function DashboardPage() {
               >
                 All Notes
               </Button>
-              {mostUsedTags.map(([tag]: any) => (
+              {mostUsedTags.map(([tag]) => (
                 <Button
                   key={tag}
                   variant={selectedTag === tag ? "default" : "outline"}
@@ -352,7 +353,7 @@ export default function DashboardPage() {
 
           {notes.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-              {notes.slice(0, 6).map((note: any, idx: number) => (
+              {notes.slice(0, 6).map((note: Note, idx: number) => (
                 <motion.div
                   key={note.id}
                   initial={{ opacity: 0, y: 20 }}
@@ -421,7 +422,7 @@ export default function DashboardPage() {
                         </div>
                         <div className="mt-6 pt-4 border-t border-border/50 flex items-center justify-between">
                           <div className="flex flex-wrap gap-1">
-                            {note.noteTags?.slice(0, 2).map((nt: any) => (
+                            {note.noteTags?.slice(0, 2).map((nt) => (
                               <span
                                 key={nt.tag?.id}
                                 className="px-1.5 py-0.5 rounded-md bg-accent/10 text-gray-500 text-[9px] font-bold uppercase tracking-wider"
@@ -429,9 +430,9 @@ export default function DashboardPage() {
                                 {nt.tag?.name}
                               </span>
                             ))}
-                            {note.noteTags?.length > 2 && (
+                            {(note.noteTags?.length ?? 0) > 2 && (
                               <span className="text-[9px] font-bold text-muted-foreground/60 pt-0.5">
-                                +{note.noteTags.length - 2}
+                                +{(note.noteTags?.length ?? 0) - 2}
                               </span>
                             )}
                           </div>
@@ -478,7 +479,21 @@ export default function DashboardPage() {
   );
 }
 
-function StatCard({ title, value, icon: Icon, description, delay }: any) {
+interface StatCardProps {
+  title: string;
+  value: string | number;
+  icon: React.ComponentType<{ className?: string }>;
+  description: string;
+  delay: number;
+}
+
+function StatCard({
+  title,
+  value,
+  icon: Icon,
+  description,
+  delay,
+}: StatCardProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}

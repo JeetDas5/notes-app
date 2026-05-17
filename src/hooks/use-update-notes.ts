@@ -4,25 +4,25 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { queryKeys } from "@/lib/query-keys";
 import { axiosInstance } from "@/lib";
+import { Note, UpdateNoteData, NoteQueryData } from "@/types";
 
 export function useUpdateNote(noteId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: any) => {
+    mutationFn: async (data: UpdateNoteData) => {
       const response = await axiosInstance.patch<{
         message?: string;
-        data: any;
+        data: Note;
       }>(`/api/notes/${noteId}`, data);
       return response.data;
     },
-
 
     onMutate: async (newData: UpdateNoteData) => {
       await queryClient.cancelQueries({ queryKey: queryKeys.note(noteId) });
 
       const previousNote = queryClient.getQueryData<NoteQueryData>(
-        queryKeys.note(noteId),
+        queryKeys.note(noteId)
       );
 
       queryClient.setQueryData(queryKeys.note(noteId), (old: NoteQueryData) => {
@@ -38,8 +38,7 @@ export function useUpdateNote(noteId: string) {
       return { previousNote };
     },
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    onError: (_, __, context: any) => {
+    onError: (_, __, context: { previousNote: NoteQueryData } | undefined) => {
       queryClient.setQueryData(queryKeys.note(noteId), context?.previousNote);
     },
 

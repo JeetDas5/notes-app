@@ -6,12 +6,18 @@ import { queryKeys } from "@/lib";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
+import { z } from "zod";
+import { loginSchema, signupSchema } from "@/validations";
+
+type LoginData = z.infer<typeof loginSchema>;
+type SignupData = z.infer<typeof signupSchema>;
+
 export function useSignIn() {
   const queryClient = useQueryClient();
   const router = useRouter();
 
   return useMutation({
-    mutationFn: async (data: any) => {
+    mutationFn: async (data: LoginData) => {
       const response = await axiosInstance.post("/api/auth/signin", data);
       return response.data;
     },
@@ -28,7 +34,7 @@ export function useSignIn() {
 
 export function useSignUp() {
   return useMutation({
-    mutationFn: async (data: any) => {
+    mutationFn: async (data: SignupData) => {
       const response = await axiosInstance.post("/api/auth/signup", data);
       return response.data;
     },

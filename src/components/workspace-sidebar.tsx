@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -22,9 +21,10 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSharedNotes, type SharedNote } from "@/hooks";
 import { motion, AnimatePresence } from "framer-motion";
+import { Note } from "@/types";
 
 interface WorkspaceSidebarProps {
-  notes: any[];
+  notes: Note[];
   isLoading: boolean;
   selectedNoteId?: string;
   onSelectNote?: (id: string) => void;
@@ -70,14 +70,14 @@ export function WorkspaceSidebar({
     return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
   };
 
-  const filteredNotes = notes.filter((n: any) =>
+  const filteredNotes = notes.filter((n: Note) =>
     view === "archived" ? n.isArchived : !n.isArchived
   );
 
-  const pinnedNotes = filteredNotes.filter((n: any) => n.isPinned);
-  const unpinnedNotes = filteredNotes.filter((n: any) => !n.isPinned);
+  const pinnedNotes = filteredNotes.filter((n: Note) => n.isPinned);
+  const unpinnedNotes = filteredNotes.filter((n: Note) => !n.isPinned);
 
-  const archivedCount = notes.filter((n: any) => n.isArchived).length;
+  const archivedCount = notes.filter((n: Note) => n.isArchived).length;
 
   return (
     <div className="flex flex-col h-full bg-muted/20 dark:bg-card/40 backdrop-blur-xl border-r border-border/50 w-72 lg:w-80 shrink-0">
@@ -130,7 +130,7 @@ export function WorkspaceSidebar({
                         <Pin className="w-2.5 h-2.5" /> Pinned
                       </p>
                       <div className="space-y-1">
-                        {pinnedNotes.map((note: any) => (
+                        {pinnedNotes.map((note: Note) => (
                           <NoteItem
                             key={note.id}
                             note={note}
@@ -153,7 +153,7 @@ export function WorkspaceSidebar({
                       </p>
                     )}
                     <div className="space-y-1">
-                      {unpinnedNotes.map((note: any) => (
+                      {unpinnedNotes.map((note: Note) => (
                         <NoteItem
                           key={note.id}
                           note={note}
@@ -301,6 +301,16 @@ export function WorkspaceSidebar({
   );
 }
 
+interface NoteItemProps {
+  note: Note;
+  isSelected: boolean;
+  onSelect: () => void;
+  onDelete: () => void;
+  onShare: () => void;
+  onToggleArchive: () => void;
+  formatTime: (dateString: string) => string;
+}
+
 function NoteItem({
   note,
   isSelected,
@@ -309,7 +319,7 @@ function NoteItem({
   onShare,
   onToggleArchive,
   formatTime,
-}: any) {
+}: NoteItemProps) {
   return (
     <button
       onClick={onSelect}
@@ -387,7 +397,21 @@ function NoteItem({
   );
 }
 
-function SidebarAction({ icon: Icon, label, count, isActive, onClick }: any) {
+interface SidebarActionProps {
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  count?: number;
+  isActive: boolean;
+  onClick: () => void;
+}
+
+function SidebarAction({
+  icon: Icon,
+  label,
+  count = 0,
+  isActive,
+  onClick,
+}: SidebarActionProps) {
   return (
     <button
       onClick={onClick}

@@ -14,12 +14,15 @@ import {
   useUpdateNoteStatus,
   useCurrentUser,
   useSharedNotes,
+  type SharedNote,
 } from "@/hooks";
+
 import { Skeleton } from "@/components/ui/skeleton";
 import { Plus } from "lucide-react";
 import { CreateNoteDialog } from "@/components/create-note-dialog";
 import { toast } from "sonner";
 import { useNotesStore } from "@/store";
+import { Note } from "@/types";
 
 export function NotesWorkspace() {
   const params = useParams();
@@ -58,17 +61,14 @@ export function NotesWorkspace() {
   const ownNotes = notesData?.data || [];
   const sharedNotes = sharedNotesData?.data || [];
 
-  // All notes available to select from (own + shared)
   const allNotes = [...ownNotes, ...sharedNotes];
 
-  // Update selected note when URL param changes
   useEffect(() => {
     if (id) {
       setSelectedNoteId(id);
     }
   }, [id]);
 
-  // Handle initial selection if no ID in URL
   useEffect(() => {
     if (ownNotes.length > 0 && !selectedNoteId && !searchQuery && !id) {
       setSelectedNoteId(ownNotes[0].id);
@@ -76,24 +76,23 @@ export function NotesWorkspace() {
     }
   }, [ownNotes, selectedNoteId, searchQuery, id, router]);
 
-  // Find selected note from all sources
-  const selectedNote = allNotes.find((n: any) => n.id === selectedNoteId);
+  const selectedNote = allNotes.find(
+    (n: Note | SharedNote) => n.id === selectedNoteId
+  ) as Note | SharedNote | undefined;
 
-  // Determine ownership and collaboration role
   const isOwner = selectedNote ? selectedNote.userId === currentUserId : false;
 
-  // If it's a shared note, find the collaborator role
-  const sharedNote = sharedNotes.find((n: any) => n.id === selectedNoteId);
+  const sharedNote = sharedNotes.find(
+    (n: SharedNote) => n.id === selectedNoteId
+  );
   const collaboratorRole: "editor" | "viewer" | null = isOwner
     ? null
     : sharedNote
     ? (sharedNote.collaboratorRole as "editor" | "viewer")
     : null;
 
-  // Viewer cannot edit
   const isReadOnly = !isOwner && collaboratorRole === "viewer";
 
-  // Handle missing or inaccessible note
   const isAllLoading = isNotesLoading || isLoadingShared;
 
   useEffect(() => {
@@ -142,7 +141,7 @@ export function NotesWorkspace() {
   };
 
   const handleShareNote = (noteId: string) => {
-    const note = ownNotes.find((n: any) => n.id === noteId);
+    const note = ownNotes.find((n: Note) => n.id === noteId);
     if (!note) return;
 
     if (!note.isPublic) {
@@ -155,7 +154,7 @@ export function NotesWorkspace() {
   };
 
   const handleToggleArchive = (noteId: string) => {
-    const note = ownNotes.find((n: any) => n.id === noteId);
+    const note = ownNotes.find((n: Note) => n.id === noteId);
     if (!note) return;
 
     updateNoteStatus(
@@ -206,7 +205,9 @@ export function NotesWorkspace() {
               initialTitle={selectedNote.title || ""}
               initialContent={selectedNote.content || ""}
               initialTags={
-                selectedNote.noteTags?.map((nt: any) => nt.tag?.name) || []
+                selectedNote.noteTags
+                  ?.map((nt) => nt.tag?.name)
+                  .filter((name): name is string => !!name) || []
               }
               noteId={selectedNote.id}
               readOnly={isReadOnly}

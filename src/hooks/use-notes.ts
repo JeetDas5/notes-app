@@ -2,6 +2,7 @@
 
 import { axiosInstance, queryKeys } from "@/lib";
 import { useQuery } from "@tanstack/react-query";
+import { Note } from "@/types";
 
 export function useNotes({
   query,
@@ -28,11 +29,10 @@ export function useNotes({
   return useQuery({
     queryKey: queryKeys.notes(query, archived, tag),
     queryFn: async () => {
-      const response = await axiosInstance.get<{ data: any[] }>(
+      const response = await axiosInstance.get<{ data: Note[] }>(
         `/api/notes?${params.toString()}`
       );
       return response.data;
     },
   });
 }
-

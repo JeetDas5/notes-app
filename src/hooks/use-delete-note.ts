@@ -3,6 +3,7 @@
 import { axiosInstance } from "@/lib";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { AxiosError } from "axios";
 
 export function useDeleteNote() {
   const queryClient = useQueryClient();
@@ -18,8 +19,11 @@ export function useDeleteNote() {
       });
       toast.success("Note deleted successfully");
     },
-    onError: (error: any) => {
-      toast.error(error.response?.data?.message || "Failed to delete note");
+    onError: (error: AxiosError<{ message?: string }>) => {
+      toast.error(
+        (error.response?.data as { message?: string })?.message ||
+          "Failed to delete note"
+      );
     },
   });
 }
