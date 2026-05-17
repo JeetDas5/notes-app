@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { WorkspaceHeader } from "@/components/workspace-header";
 import { WorkspaceSidebar } from "@/components/workspace-sidebar";
@@ -11,18 +11,26 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Plus } from "lucide-react";
 import { CreateNoteDialog } from "@/components/create-note-dialog";
 import { toast } from "sonner";
+import { useNotesStore } from "@/store";
 
 export function NotesWorkspace() {
   const params = useParams();
   const router = useRouter();
   const id = params?.id as string | undefined;
 
-  const [selectedNoteId, setSelectedNoteId] = useState<string | undefined>(id);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [view, setView] = useState<"all" | "archived">("all");
+  const {
+    selectedNoteId,
+    setSelectedNoteId,
+    searchQuery,
+    setSearchQuery,
+    view,
+    setView,
+    showAIPanel,
+    isCreateDialogOpen,
+    setIsCreateDialogOpen,
+  } = useNotesStore();
+
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
-  const [showAIPanel, setShowAIPanel] = useState(true);
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
   const { data: notesData, isLoading: isNotesLoading } = useNotes({
     query: debouncedSearchQuery,

@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
+import { useDashboardStore } from "@/store";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -41,8 +42,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 export default function DashboardPage() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  const { searchQuery, setSearchQuery, selectedTag, setSelectedTag } =
+    useDashboardStore();
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const { data: userData, isLoading: isUserLoading } = useCurrentUser();
@@ -296,10 +297,10 @@ export default function DashboardPage() {
                 variant={selectedTag === null ? "default" : "outline"}
                 size="sm"
                 onClick={() => setSelectedTag(null)}
-                className={`rounded-full px-4 h-8 text-xs font-bold transition-all ${
+                className={`rounded-full cursor-pointer hover:bg-gray-500/30 px-4 h-8 text-xs font-bold transition-all ${
                   selectedTag === null
                     ? "bg-accent text-accent-foreground shadow-lg shadow-accent/20"
-                    : "border-border/50 hover:bg-accent/5 hover:border-accent/50"
+                    : "border-border/50"
                 }`}
               >
                 All Notes
@@ -312,10 +313,10 @@ export default function DashboardPage() {
                   onClick={() =>
                     setSelectedTag(selectedTag === tag ? null : tag)
                   }
-                  className={`rounded-full px-4 h-8 text-xs font-bold transition-all ${
+                  className={`rounded-full cursor-pointer hover:bg-gray-500/30 px-4 h-8 text-xs font-bold transition-all ${
                     selectedTag === tag
                       ? "bg-accent text-accent-foreground shadow-lg shadow-accent/20"
-                      : "border-border/50 hover:bg-accent/5 hover:border-accent/50"
+                      : "border-border/50"
                   }`}
                 >
                   #{tag}
@@ -363,7 +364,7 @@ export default function DashboardPage() {
                       <div className="flex flex-col h-full">
                         <div className="flex-1">
                           <div className="flex items-center justify-between mb-4">
-                            <div className="p-2 rounded-lg bg-accent/10 text-accent group-hover:scale-110 transition-transform duration-300">
+                            <div className="p-2 rounded-lg bg-accent/10 text-gray-500 group-hover:scale-110 transition-transform duration-300">
                               <FileText className="w-4 h-4" />
                             </div>
                             <div className="flex items-center gap-2">
@@ -423,7 +424,7 @@ export default function DashboardPage() {
                             {note.noteTags?.slice(0, 2).map((nt: any) => (
                               <span
                                 key={nt.tag?.id}
-                                className="px-1.5 py-0.5 rounded-md bg-accent/10 text-accent text-[9px] font-bold uppercase tracking-wider"
+                                className="px-1.5 py-0.5 rounded-md bg-accent/10 text-gray-500 text-[9px] font-bold uppercase tracking-wider"
                               >
                                 {nt.tag?.name}
                               </span>
