@@ -4,13 +4,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useGenerateAI, useUpdateNote } from "@/hooks";
-import {
-  BrainCircuit,
-  Bot,
-  Zap,
-  X,
-  ChevronLeft,
-} from "lucide-react";
+import { BrainCircuit, Bot, Zap, X, ChevronLeft } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface AIPanelProps {
@@ -38,7 +32,9 @@ export function AIPanel({ isOpen = true, onClose, noteId }: AIPanelProps) {
     generateAI(noteId, {
       onSuccess: (data) => {
         setSummary(data.data.summary);
-        setSuggestedTitle(data.data.suggested_title || data.data.aiSuggestedTitle);
+        setSuggestedTitle(
+          data.data.suggested_title || data.data.aiSuggestedTitle
+        );
       },
     });
   };
@@ -52,11 +48,10 @@ export function AIPanel({ isOpen = true, onClose, noteId }: AIPanelProps) {
 
   return (
     <div className="flex flex-col h-full bg-card/40 backdrop-blur-2xl border-l border-border/50 w-80 lg:w-96 shrink-0 shadow-2xl">
-      {/* Panel header */}
       <div className="p-4 border-b border-border/50 bg-background/20">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-accent/10 flex items-center justify-center text-accent shadow-inner shrink-0">
-            <BrainCircuit className="w-5 h-5" />
+          <div className="w-10 h-10 rounded-2xl bg-accent/10 flex items-center justify-center shadow-inner shrink-0">
+            <BrainCircuit className="w-5 h-5 text-gray-500" />
           </div>
           <div className="flex-1 min-w-0">
             <h3 className="font-bold text-sm tracking-tight">AI Insights</h3>
@@ -64,11 +59,11 @@ export function AIPanel({ isOpen = true, onClose, noteId }: AIPanelProps) {
               Note Summarizer
             </p>
           </div>
-          {/* Close button */}
+
           {onClose && (
             <button
               onClick={onClose}
-              className="h-7 w-7 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-all shrink-0"
+              className="h-7 w-7 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-all shrink-0 cursor-pointer"
               aria-label="Close AI panel"
             >
               <X className="w-4 h-4" />
@@ -167,22 +162,22 @@ export function AIPanel({ isOpen = true, onClose, noteId }: AIPanelProps) {
   );
 }
 
-/** Collapsed tab shown on the right edge when the AI panel is closed */
+// Collapsable AI sidepanel
 export function AIOpenTab({ onClick }: { onClick: () => void }) {
   return (
     <button
       onClick={onClick}
-      className="flex flex-col items-center justify-center gap-1.5 w-9 h-full bg-card/30 border-l border-border/50 hover:bg-accent/10 hover:border-accent/30 transition-all group shrink-0"
+      className="flex flex-col items-center justify-center gap-1.5 w-9 h-full bg-card/30 border-l border-border/50 hover:bg-accent/10 hover:border-accent/30 transition-all group shrink-0 cursor-pointer"
       aria-label="Open AI panel"
     >
-      <ChevronLeft className="w-3.5 h-3.5 text-muted-foreground group-hover:text-accent transition-colors" />
+      <ChevronLeft className="w-3.5 h-3.5 text-muted-foreground group-hover:text-black dark:group-hover:text-white transition-colors" />
       <span
-        className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground group-hover:text-accent transition-colors"
+        className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground group-hover:text-black dark:group-hover:text-white transition-colors"
         style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}
       >
         AI
       </span>
-      <BrainCircuit className="w-3.5 h-3.5 text-muted-foreground group-hover:text-accent transition-colors" />
+      <BrainCircuit className="w-3.5 h-3.5 text-muted-foreground group-hover:text-black dark:group-hover:text-white transition-colors" />
     </button>
   );
 }

@@ -40,7 +40,9 @@ export function Footer() {
             </h4>
             <ul className="space-y-4">
               <FooterLink href="#features">Features</FooterLink>
-              <FooterLink href="#pricing">Pricing</FooterLink>
+              <FooterLink href="https://github.com/JeetDas5/notes-app">
+                Documentation
+              </FooterLink>
             </ul>
           </div>
 
@@ -50,7 +52,9 @@ export function Footer() {
             </h4>
             <ul className="space-y-4">
               <FooterLink href="#">About Us</FooterLink>
-              <FooterLink href="#">Contact</FooterLink>
+              <FooterLink href="mailto:jeet15083011@gmail.com">
+                Contact
+              </FooterLink>
             </ul>
           </div>
 
@@ -65,9 +69,21 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="pt-8 border-t border-border/50 flex flex-col sm:flex-row justify-between items-center gap-4">
+        <div className="pt-8 border-t border-border/50 flex flex-col sm:flex-row justify-between items-left md:items-center gap-4">
           <p className="text-sm text-muted-foreground font-medium">
-            © {currentYear} NotesAI Inc. All rights reserved.
+            © {currentYear} All rights reserved.
+          </p>
+          <p className="text-sm text-muted-foreground font-medium">
+            Built by
+            <span className="text-sm text-accent-foreground font-medium ml-2 hover:underline">
+              <Link
+                href="https://github.com/JeetDas5"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Jeet Das
+              </Link>
+            </span>
           </p>
           <p className="text-sm text-muted-foreground">
             Crafted with passion for better productivity.

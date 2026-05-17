@@ -52,7 +52,10 @@ export function WorkspaceHeader({
     <>
       <header className="flex items-center justify-between h-14 border-b border-border/50 px-4 bg-background/60 backdrop-blur-xl sticky top-0 z-50">
         <div className="flex items-center gap-4 flex-1 min-w-0">
-          <Link href="/dashboard" className="flex items-center gap-2 group shrink-0">
+          <Link
+            href="/dashboard"
+            className="flex items-center gap-2 group shrink-0"
+          >
             <div className="w-7 h-7 rounded-lg bg-accent flex items-center justify-center text-accent-foreground shadow-lg shadow-accent/20 group-hover:rotate-6 transition-transform">
               <NotebookPen className="w-3.5 h-3.5" />
             </div>
@@ -86,12 +89,12 @@ export function WorkspaceHeader({
             <ActiveCollaboratorsBar currentUserId={user.id} />
           )}
 
-          {/* Invite button — only for owners */}
+          {/* Invite button */}
           {noteId && isOwner && (
             <Button
               size="sm"
               variant="outline"
-              className="h-8 gap-1.5 rounded-lg border-border/50 text-xs font-bold px-3 hover:bg-accent/10 hover:border-accent/30 hover:text-accent transition-all hidden sm:flex"
+              className="h-8 gap-1.5 rounded-lg border-border/50 text-xs font-bold px-3 transition-all hidden sm:flex cursor-pointer"
               onClick={() => setIsInviteOpen(true)}
             >
               <UserPlus className="w-3.5 h-3.5" />

@@ -19,12 +19,6 @@ export function Navbar() {
             </span>
           </Link>
 
-          <div className="hidden md:flex items-center gap-1">
-            <NavLink href="#features">Features</NavLink>
-            <NavLink href="#pricing">Pricing</NavLink>
-            <NavLink href="#faq">FAQ</NavLink>
-          </div>
-
           <div className="flex items-center gap-2 sm:gap-4">
             <ThemeToggle />
             <div className="hidden sm:flex items-center gap-2">
@@ -38,30 +32,16 @@ export function Navbar() {
                 <Link href="/signup">Get Started</Link>
               </Button>
             </div>
-            <Button size="sm" asChild className="sm:hidden bg-accent font-bold">
+            <Button
+              size="sm"
+              asChild
+              className="sm:hidden bg-accent text-accent-foreground"
+            >
               <Link href="/signup">Start</Link>
             </Button>
           </div>
         </div>
       </div>
     </nav>
-  );
-}
-
-function NavLink({
-  href,
-  children,
-}: {
-  href: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <Link
-      href={href}
-      className="relative px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors group"
-    >
-      {children}
-      <span className="absolute bottom-0 left-4 right-4 h-0.5 bg-accent scale-x-0 group-hover:scale-x-100 transition-transform origin-left" />
-    </Link>
   );
 }

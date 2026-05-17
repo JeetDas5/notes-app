@@ -48,12 +48,11 @@ export function Hero() {
           real-time collaboration, and seamless organization.
         </motion.p>
 
-        {/* CTA Buttons */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.3 }}
-          className="mt-10 flex flex-col sm:flex-row gap-4 justify-center"
+          className="max-w-[75svw] md:w-full mt-10 flex flex-col sm:flex-row gap-4 justify-center items-center mx-auto"
         >
           <Button
             size="lg"
@@ -61,17 +60,7 @@ export function Hero() {
             className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold px-8 shadow-lg shadow-accent/20 transition-all hover:scale-105 active:scale-95"
           >
             <Link href="/signup" className="flex items-center gap-2">
-              Start Free Trial <ChevronRight className="w-4 h-4" />
-            </Link>
-          </Button>
-          <Button
-            size="lg"
-            variant="outline"
-            asChild
-            className="px-8 transition-all hover:bg-accent/5"
-          >
-            <Link href="#demo" className="flex items-center gap-2">
-              <Play className="w-4 h-4 fill-current" /> Watch Demo
+              Start for Free <ChevronRight className="w-4 h-4" />
             </Link>
           </Button>
         </motion.div>

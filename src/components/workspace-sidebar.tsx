@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -13,7 +12,6 @@ import {
   MoreHorizontal,
   FileText,
   Users2,
-  ChevronRight,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -54,7 +52,8 @@ export function WorkspaceSidebar({
   view,
   onViewChange,
 }: WorkspaceSidebarProps) {
-  const { data: sharedNotesData, isLoading: isLoadingShared } = useSharedNotes();
+  const { data: sharedNotesData, isLoading: isLoadingShared } =
+    useSharedNotes();
   const sharedNotes = sharedNotesData?.data || [];
 
   const formatTime = (dateString: string) => {
@@ -85,21 +84,21 @@ export function WorkspaceSidebar({
       <div className="p-4 space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="font-bold text-sm tracking-tight flex items-center gap-2">
-            <FileText className="w-4 h-4 text-accent" />
+            <FileText className="w-4 h-4 text-gray-500 dark:text-white" />
             Notes
           </h2>
           <Button
             size="icon"
             variant="ghost"
             onClick={onCreateNote}
-            className="h-8 w-8 rounded-lg bg-accent/5 hover:bg-accent/10 text-accent transition-all active:scale-95"
+            className="h-8 w-8 rounded-lg bg-accent/5 hover:bg-accent/10 text-accent transition-all active:scale-95 cursor-pointer"
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="w-4 h-4 text-gray-500 dark:text-white" />
           </Button>
         </div>
 
         <div className="relative group">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground group-focus-within:text-accent transition-colors" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-500 dark:text-white group-focus-within:text-gray-500 transition-colors" />
           <Input
             placeholder="Search notes..."
             value={searchQuery}
@@ -175,7 +174,11 @@ export function WorkspaceSidebar({
                         <Search className="w-5 h-5" />
                       </div>
                       <p className="text-xs font-medium text-muted-foreground">
-                        {searchQuery ? "No results found" : view === "archived" ? "No archived notes" : "No notes yet"}
+                        {searchQuery
+                          ? "No results found"
+                          : view === "archived"
+                          ? "No archived notes"
+                          : "No notes yet"}
                       </p>
                     </div>
                   )}
@@ -390,12 +393,16 @@ function SidebarAction({ icon: Icon, label, count, isActive, onClick }: any) {
       onClick={onClick}
       className={`flex items-center justify-between px-3 py-2 rounded-lg transition-all w-full ${
         isActive
-          ? "bg-accent/10 text-accent font-bold"
-          : "text-muted-foreground hover:bg-muted hover:text-foreground"
+          ? "bg-gray-200/50 dark:bg-accent text-gray-700 dark:text-white font-bold cursor-pointer"
+          : "text-muted-foreground hover:bg-muted hover:text-foreground cursor-pointer"
       }`}
     >
       <div className="flex items-center gap-2.5">
-        <Icon className={`w-4 h-4 ${isActive ? "text-accent" : ""}`} />
+        <Icon
+          className={`w-4 h-4 ${
+            isActive ? "text-gray-500 dark:text-white" : ""
+          }`}
+        />
         <span className="text-xs">{label}</span>
       </div>
       {count > 0 && (

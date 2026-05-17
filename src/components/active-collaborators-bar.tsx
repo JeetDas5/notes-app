@@ -3,7 +3,12 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useCollaborationStore, type CollaboratorUser } from "@/store";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Wifi, WifiOff } from "lucide-react";
 
 interface ActiveCollaboratorsBarProps {
@@ -54,12 +59,14 @@ export function ActiveCollaboratorsBar({
           </TooltipTrigger>
           <TooltipContent side="bottom" className="text-xs">
             {isConnected
-              ? `${activeUsers.length} ${activeUsers.length === 1 ? "person" : "people"} in this note`
+              ? `${activeUsers.length} ${
+                  activeUsers.length === 1 ? "person" : "people"
+                } in this note`
               : "Connecting to collaboration server..."}
           </TooltipContent>
         </Tooltip>
 
-        {/* Stacked avatars for other active users */}
+        {/* Avatars for other active users */}
         <AnimatePresence>
           {others.length > 0 && (
             <div className="flex items-center">

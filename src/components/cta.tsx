@@ -32,24 +32,16 @@ export function CTA() {
               collaborate faster, and stay organized effortlessly.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className=" flex flex-col sm:flex-row gap-4 justify-center">
               <Button
                 size="lg"
                 asChild
                 className="bg-accent hover:bg-accent/90 text-accent-foreground font-bold shadow-xl shadow-accent/20 group"
               >
                 <Link href="/signup">
-                  Start Free for 14 Days
+                  Start for Free
                   <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
                 </Link>
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                asChild
-                className="font-bold backdrop-blur-sm"
-              >
-                <Link href="mailto:support@notesai.com">Contact Sales</Link>
               </Button>
             </div>
 
