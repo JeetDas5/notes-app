@@ -1,5 +1,5 @@
 import db from "@/db";
-import argon2 from "argon2";
+import { hashPassword } from "@/lib/password";
 import { ZodError } from "zod";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const hashedPassword = await argon2.hash(password);
+    const hashedPassword = await hashPassword(password);
 
     const [newUser] = await db
       .insert(users)

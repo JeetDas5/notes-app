@@ -1,5 +1,5 @@
 import db from "@/db";
-import argon2 from "argon2";
+import { verifyPassword } from "@/lib/password";
 import { ZodError } from "zod";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ message: "User not found" }, { status: 404 });
     }
 
-    const isPasswordValid = await argon2.verify(user.password, password);
+    const isPasswordValid = await verifyPassword(user.password, password);
 
     if (!isPasswordValid) {
       return NextResponse.json(
