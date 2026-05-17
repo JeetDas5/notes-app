@@ -116,7 +116,7 @@ export function Features() {
             <motion.div
               key={idx}
               variants={itemVariants}
-              className="group relative rounded-2xl border border-border/50 bg-card p-8 hover:border-accent/50 hover:bg-accent/2 transition-all duration-300 shadow-sm hover:shadow-xl hover:shadow-accent/5"
+              className="group relative rounded-2xl border border-border/50 bg-card/50 dark:bg-card/30 backdrop-blur-md p-8 hover:border-accent/50 hover:bg-accent/2 transition-all duration-300 shadow-sm hover:shadow-xl hover:shadow-accent/5"
             >
               <div
                 className={`inline-flex items-center justify-center w-12 h-12 rounded-xl ${feature.bg} ${feature.color} mb-6 group-hover:scale-110 transition-transform duration-300`}

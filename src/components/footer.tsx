@@ -15,8 +15,8 @@ export function Footer() {
   return (
     <footer className="border-t border-border bg-card/30 backdrop-blur-sm">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-12 mb-12">
-          <div className="col-span-2 lg:col-span-2">
+        <div className="flex justify-between items-center gap-12 mb-12">
+          <div className="">
             <Link href="/" className="flex items-center gap-2 mb-6 group">
               <div className="w-8 h-8 rounded-lg bg-accent flex items-center justify-center text-accent-foreground group-hover:rotate-6 transition-transform">
                 <NotebookPen className="w-4 h-4" />
@@ -28,13 +28,22 @@ export function Footer() {
               collaborate, and organize with AI-powered tools.
             </p>
             <div className="flex items-center gap-4">
-              <SocialLink href="#" icon={NewTwitterIcon} />
-              <SocialLink href="#" icon={GithubIcon} />
-              <SocialLink href="#" icon={Linkedin01Icon} />
+              <SocialLink
+                href="https://x.com/I_am_Jeet5"
+                icon={NewTwitterIcon}
+              />
+              <SocialLink
+                href="https://github.com/JeetDas5"
+                icon={GithubIcon}
+              />
+              <SocialLink
+                href="https://www.linkedin.com/in/jeet-das-7633a52ab/"
+                icon={Linkedin01Icon}
+              />
             </div>
           </div>
 
-          <div>
+          <div className="md:mr-4">
             <h4 className="font-bold text-sm uppercase tracking-widest mb-6">
               Product
             </h4>
@@ -43,28 +52,6 @@ export function Footer() {
               <FooterLink href="https://github.com/JeetDas5/notes-app">
                 Documentation
               </FooterLink>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="font-bold text-sm uppercase tracking-widest mb-6">
-              Company
-            </h4>
-            <ul className="space-y-4">
-              <FooterLink href="#">About Us</FooterLink>
-              <FooterLink href="mailto:jeet15083011@gmail.com">
-                Contact
-              </FooterLink>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="font-bold text-sm uppercase tracking-widest mb-6">
-              Legal
-            </h4>
-            <ul className="space-y-4">
-              <FooterLink href="#">Privacy Policy</FooterLink>
-              <FooterLink href="#">Terms of Service</FooterLink>
             </ul>
           </div>
         </div>

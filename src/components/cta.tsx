@@ -13,7 +13,7 @@ export function CTA() {
           initial={{ opacity: 0, scale: 0.95 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
-          className="relative overflow-hidden rounded-3xl border border-accent/20 bg-linear-to-br from-accent/10 via-accent/5 to-transparent p-12 sm:p-16 text-center shadow-2xl"
+          className="relative overflow-hidden rounded-3xl border border-accent/20 bg-card/30 backdrop-blur-md bg-linear-to-br from-accent/20 via-accent/10 to-transparent p-12 sm:p-16 text-center shadow-2xl"
         >
           <div className="absolute top-0 right-0 -mt-20 -mr-20 w-64 h-64 bg-accent/10 rounded-full blur-3xl animate-pulse" />
           <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-64 h-64 bg-accent/5 rounded-full blur-3xl" />

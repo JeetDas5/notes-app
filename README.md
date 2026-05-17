@@ -301,7 +301,7 @@ Ensure you have **Node.js** (version 20 or higher) and a package manager (**Bun*
 ### 2. Clone and Install Dependencies
 ```bash
 # Clone the repository
-git clone <https://github.com/JeetDas5/notes-app>
+git clone https://github.com/JeetDas5/notes-app
 cd notes-app
 
 # Install project packages
