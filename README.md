@@ -13,47 +13,43 @@ This application allows multiple users to collaborate on notes simultaneously wi
 ## Key Features
 
 ### Secure Authentication & Session Management
-
-- **Argon2 Hashing**: Cryptographically secure password hashing.
-- **JWT Authorization**: Custom JSON Web Token stateless sessions.
-- **Unified Profile Navigation**: Accessible profile dropdown for user email details and fast logout across pages.
+* **Argon2 Hashing**: Cryptographically secure password hashing.
+* **JWT Authorization**: Custom JSON Web Token stateless sessions.
+* **Unified Profile Navigation**: Accessible profile dropdown for user email details and fast logout across pages.
 
 ### Real-Time Collaborative Workspace
-
-- **Socket.io Integration**: Low-latency, full-duplex WebSocket server wrapper for high-frequency text synchronization.
-- **Collaborator Presence**: Visual headers displaying other active users working on the same note.
-- **Live Cursor Tracking**: Real-time cursor positions displayed using individual user-assigned colors.
-- **Access Control & Roles**: Assign `Editor` or `Viewer` permissions to collaborators. Viewers are restricted from making changes, and their roles are dynamically represented.
+* **Socket.io Integration**: Low-latency, full-duplex WebSocket server wrapper for high-frequency text synchronization.
+* **Collaborator Presence**: Visual headers displaying other active users working on the same note.
+* **Live Cursor Tracking**: Real-time cursor positions displayed using individual user-assigned colors.
+* **Access Control & Roles**: Assign `Editor` or `Viewer` permissions to collaborators. Viewers are restricted from making changes, and their roles are dynamically represented.
 
 ### OpenAI-Powered Insights
-
-- **AI Summary Panel**: Dynamic, single-click summaries generated from note content.
-- **Action Items Extraction**: Extract actionable to-do lists from the text automatically.
-- **AI-Suggested Titles**: Generates premium title recommendations based on text semantics.
-- **Generation History**: AI prompts and responses are tracked and cached.
+* **AI Summary Panel**: Dynamic, single-click summaries generated from note content.
+* **Action Items Extraction**: Extract actionable to-do lists from the text automatically.
+* **AI-Suggested Titles**: Generates premium title recommendations based on text semantics.
+* **Generation History**: AI prompts and responses are tracked and cached.
 
 ### Notes Organization & Search
-
-- **Note Archiving**: Archive/unarchive notes with a single click.
-- **Tag Management**: Dynamically create, assign, and manage multi-tag categorization.
-- **Global Search**: Search through owned and shared notes on the dashboard dynamically.
-- **Dynamic Sidebar**: Access notes, categories, archives, and tags in a responsive view.
+* **Note Archiving**: Archive/unarchive notes with a single click.
+* **Tag Management**: Dynamically create, assign, and manage multi-tag categorization.
+* **Global Search**: Search through owned and shared notes on the dashboard dynamically.
+* **Dynamic Sidebar**: Access notes, categories, archives, and tags in a responsive view.
 
 ---
 
 ## Tech Stack
 
-| Category               | Technology                                 | Purpose                                                                                                     |
-| :--------------------- | :----------------------------------------- | :---------------------------------------------------------------------------------------------------------- |
-| **Framework & Engine** | Next.js 16.2.6 (App Router) / React 19.2.4 | UI rendering, client-side routing, compilation, and API hosting.                                            |
-| **Styling & Motion**   | Tailwind CSS 4, Framer Motion, next-themes | Elegant typography (Inter/Geist), glassmorphism, responsive sidebar, light/dark mode, and micro-animations. |
-| **Database**           | Neon Serverless PostgreSQL                 | Managed cloud relational database with low latency.                                                         |
-| **ORM**                | Drizzle ORM (drizzle-orm / drizzle-kit)    | Type-safe SQL querying, schema declaration, and migrations.                                                 |
-| **Realtime Sync**      | Socket.IO (socket.io / socket.io-client)   | WebSocket server context tracking, room creation, and user cursors.                                         |
-| **State & Data Cache** | Zustand & TanStack React Query 5           | Global client state and cached API fetch requests.                                                          |
-| **AI Processing**      | OpenAI Node SDK                            | AI insights (Summarization, Title suggestion, Action items).                                                |
-| **Components**         | Radix UI, Shadcn, Lucide React, Hugeicons  | Accessible overlay primitives, rich premium icons, dialogs, and notifications.                              |
-| **Security & Forms**   | Argon2, jsonwebtoken, React Hook Form, Zod | Password hashing, token authorization, forms validation.                                                    |
+| Category | Technology | Purpose |
+| :--- | :--- | :--- |
+| **Framework & Engine** | Next.js 16.2.6 (App Router) / React 19.2.4 | UI rendering, client-side routing, compilation, and API hosting. |
+| **Styling & Motion** | Tailwind CSS 4, Framer Motion, next-themes | Elegant typography (Inter/Geist), glassmorphism, responsive sidebar, light/dark mode, and micro-animations. |
+| **Database** | Neon Serverless PostgreSQL | Managed cloud relational database with low latency. |
+| **ORM** | Drizzle ORM (drizzle-orm / drizzle-kit) | Type-safe SQL querying, schema declaration, and migrations. |
+| **Realtime Sync** | Socket.IO (socket.io / socket.io-client) | WebSocket server context tracking, room creation, and user cursors. |
+| **State & Data Cache** | Zustand & TanStack React Query 5 | Global client state and cached API fetch requests. |
+| **AI Processing** | OpenAI Node SDK | AI insights (Summarization, Title suggestion, Action items). |
+| **Components** | Radix UI, Shadcn, Lucide React, Hugeicons | Accessible overlay primitives, rich premium icons, dialogs, and notifications. |
+| **Security & Forms** | Argon2, jsonwebtoken, React Hook Form, Zod | Password hashing, token authorization, forms validation. |
 
 ---
 
@@ -142,23 +138,167 @@ erDiagram
 
 To run the application, create a `.env` file in the root directory. You can copy the template from `.env.example`:
 
-| Environment Variable | Description                                           | Example / Required Format                                                      |
-| :------------------- | :---------------------------------------------------- | :----------------------------------------------------------------------------- |
-| `DATABASE_URL`       | Neon PostgreSQL Serverless Connection URI.            | `postgresql://neondb_owner:...@ep-pooler.aws.neon.tech/neondb?sslmode=require` |
-| `JWT_SECRET`         | Super secret token/hash key for JWT signing.          | `any_high_entropy_alphanumeric_string`                                         |
-| `OPENAI_API_KEY`     | Your personal API key from OpenAI developer platform. | `sk-proj-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX`                                       |
-| `NODE_ENV`           | Environment identifier.                               | `development` or `production`                                                  |
+| Environment Variable | Description | Example / Required Format |
+| :--- | :--- | :--- |
+| `DATABASE_URL` | Neon PostgreSQL Serverless Connection URI. | `postgresql://neondb_owner:...@ep-pooler.aws.neon.tech/neondb?sslmode=require` |
+| `JWT_SECRET` | Super secret token/hash key for JWT signing. | `any_high_entropy_alphanumeric_string` |
+| `OPENAI_API_KEY` | Your personal API key from OpenAI developer platform. | `sk-proj-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX` |
+| `NODE_ENV` | Environment identifier. | `development` or `production` |
+
+---
+
+## API Reference
+
+All requests and responses use the `application/json` format. Protected endpoints require the user session token to be present in the cookies.
+
+### Authentication
+
+#### Sign Up
+* **URL**: `/api/auth/signup`
+* **Method**: `POST`
+* **Body**:
+  ```json
+  {
+    "name": "John Doe",
+    "email": "john@example.com",
+    "password": "securepassword"
+  }
+  ```
+
+#### Sign In
+* **URL**: `/api/auth/signin`
+* **Method**: `POST`
+* **Body**:
+  ```json
+  {
+    "email": "jeet@email.com",
+    "password": "securepassword"
+  }
+  ```
+* **Response**:
+  ```json
+  {
+      "message": "User signed in successfully",
+      "user": {
+          "id": "ecb272b0-cbca-4398-968a-d46c6b1b59d4",
+          "email": "jeet@email.com",
+          "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJlY2IyNzJiMC1jYmNhLTQzOTgtOTY4YS1kNDZjNmIxYjU5ZDQiLCJpYXQiOjE3NzkwMzc0NjYsImV4cCI6MTc3OTY0MjI2Nn0.G96dxhEo3PQ-pYIrN8jhWEa7JR2vOdtdjQIZ-sIUf0g"
+      }
+  }
+  ```
+
+#### Get Current User
+* **URL**: `/api/auth/me`
+* **Method**: `GET`
+
+#### Sign Out
+* **URL**: `/api/auth/logout`
+* **Method**: `POST`
+
+---
+
+### Notes
+
+#### List Notes
+* **URL**: `/api/notes`
+* **Method**: `GET`
+
+#### Create Note
+* **URL**: `/api/notes`
+* **Method**: `POST`
+* **Body**:
+  ```json
+  {
+    "title": "Project kickoff notes",
+    "content": "Outline milestones, owners, and next steps.",
+    "tags": ["Roadmap", "Q2 Planning", "Product"]
+  }
+  ```
+* **Response**:
+  ```json
+  {
+      "message": "Note created successfully",
+      "data": {
+          "id": "3b30b745-1750-46b7-8587-246d55636b21",
+          "userId": "ecb272b0-cbca-4398-968a-d46c6b1b59d4",
+          "title": "Project kickoff notes",
+          "content": "Outline milestones, owners, and next steps.",
+          "isArchived": false,
+          "isPublic": false,
+          "shareId": "2b89355c-4c01-4e41-8fe2-25474d9a1d3f",
+          "aiSummary": null,
+          "aiSuggestedTitle": null,
+          "actionItems": null,
+          "createdAt": "2026-05-17T17:05:20.655Z",
+          "updatedAt": "2026-05-17T17:05:20.655Z"
+      }
+  }
+  ```
+
+#### Get Note by ID
+* **URL**: `/api/notes/[id]`
+* **Method**: `GET`
+
+#### Update Note by ID
+* **URL**: `/api/notes/[id]`
+* **Method**: `PATCH`
+
+#### Delete Note by ID
+* **URL**: `/api/notes/[id]`
+* **Method**: `DELETE`
+
+#### List Shared Notes
+* **URL**: `/api/notes/shared`
+* **Method**: `GET`
+
+---
+
+### Note Collaborators
+
+#### List Collaborators
+* **URL**: `/api/notes/[id]/collaborators`
+* **Method**: `GET`
+
+#### Add Collaborator
+* **URL**: `/api/notes/[id]/collaborators`
+* **Method**: `POST`
+
+#### Remove Collaborator
+* **URL**: `/api/notes/[id]/collaborators/[userId]`
+* **Method**: `DELETE`
+
+---
+
+### Link Sharing
+
+#### Configure Link Sharing
+* **URL**: `/api/notes/[id]/share`
+* **Method**: `POST`
+
+#### Get Public Note by Share ID
+* **URL**: `/api/share/[shareId]`
+* **Method**: `GET`
+
+---
+
+### AI Insights
+
+#### Generate AI Insights
+* **URL**: `/api/ai/generate`
+* **Method**: `POST`
+
+#### Get AI Usage Count
+* **URL**: `/api/ai/count`
+* **Method**: `GET`
 
 ---
 
 ## How to Start the Project
 
 ### 1. Prerequisites
-
 Ensure you have **Node.js** (version 20 or higher) and a package manager (**Bun**, **NPM**, or **PNPM**) installed.
 
 ### 2. Clone and Install Dependencies
-
 ```bash
 # Clone the repository
 git clone <https://github.com/JeetDas5/notes-app>
@@ -173,7 +313,6 @@ pnpm install
 ```
 
 ### 3. Setup Your Database Environment
-
 Drizzle Kit is used to sync schemas. Boot up a database on Neon, fill in your `DATABASE_URL` in `.env`, and apply the database schemas:
 
 ```bash
@@ -184,7 +323,6 @@ bunx drizzle-kit push
 ```
 
 Alternatively, you can run Drizzle's migration commands to keep track of schema version control:
-
 ```bash
 # Generate schema migrations
 npx drizzle-kit generate
@@ -206,7 +344,6 @@ bun dev:socket
 Open [http://localhost:3000](http://localhost:3000) on your browser to view the page.
 
 ### 5. Build and Deploy (Production)
-
 ```bash
 # Build the Next.js production bundles
 npm run build
@@ -226,9 +363,13 @@ To run the unit tests, use the following commands:
 ```bash
 # Run all tests once
 npm run test --run
+# or using Bun:
+bun test --run
 
 # Run tests in interactive watch mode
 npm run test
+# or using Bun:
+bun test
 ```
 
 ---

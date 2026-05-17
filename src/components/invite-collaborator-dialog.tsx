@@ -22,7 +22,6 @@ import {
   UserPlus,
   Mail,
   Trash2,
-  Crown,
   Shield,
   Loader2,
   Users,
@@ -105,8 +104,7 @@ export function InviteCollaboratorDialog({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[480px] p-0 gap-0 overflow-hidden rounded-2xl border-border/50 shadow-2xl">
-        {/* Header */}
-        <div className="px-6 pt-6 pb-4 bg-gradient-to-br from-accent/10 via-background to-background border-b border-border/40">
+        <div className="px-6 pt-6 pb-4 bg-linear-to-br from-accent/10 via-background to-background border-b border-border/40">
           <DialogHeader>
             <div className="flex items-center gap-3 mb-1">
               <div className="w-10 h-10 rounded-xl bg-accent/15 flex items-center justify-center">
@@ -153,12 +151,12 @@ export function InviteCollaboratorDialog({
                   >
                     {role === "editor" ? (
                       <>
-                        <Shield className="w-3 h-3 text-accent" />
+                        <Shield className="w-3 h-3 text-white" />
                         Editor
                       </>
                     ) : (
                       <>
-                        <Shield className="w-3 h-3 text-muted-foreground" />
+                        <Shield className="w-3 h-3 text-gray-500" />
                         Viewer
                       </>
                     )}
@@ -167,7 +165,7 @@ export function InviteCollaboratorDialog({
                     size="sm"
                     onClick={handleInvite}
                     disabled={!email.trim() || isInviting}
-                    className="h-10 px-4 rounded-xl bg-accent hover:bg-accent/90 text-accent-foreground font-bold"
+                    className="h-10 px-4 rounded-xl bg-accent hover:bg-accent/90 text-accent-foreground font-bold cursor-pointer"
                   >
                     {isInviting ? (
                       <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -242,8 +240,8 @@ export function InviteCollaboratorDialog({
                         <span
                           className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide ${
                             c.role === "editor"
-                              ? "bg-accent/10 text-accent"
-                              : "bg-muted text-muted-foreground"
+                              ? "bg-accent/10 text-white"
+                              : "bg-muted text-gray-500"
                           }`}
                         >
                           {c.role}
