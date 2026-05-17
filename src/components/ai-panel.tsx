@@ -4,19 +4,22 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useGenerateAI, useUpdateNote } from "@/hooks";
-import { 
-  BrainCircuit, 
-  Bot, 
+import {
+  BrainCircuit,
+  Bot,
   Zap,
+  X,
+  ChevronLeft,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface AIPanelProps {
   isOpen?: boolean;
+  onClose?: () => void;
   noteId?: string;
 }
 
-export function AIPanel({ isOpen = true, noteId }: AIPanelProps) {
+export function AIPanel({ isOpen = true, onClose, noteId }: AIPanelProps) {
   const [summary, setSummary] = useState<string | null>(null);
   const [suggestedTitle, setSuggestedTitle] = useState<string | null>(null);
   const { mutate: generateAI, isPending: isLoading } = useGenerateAI();
@@ -49,15 +52,28 @@ export function AIPanel({ isOpen = true, noteId }: AIPanelProps) {
 
   return (
     <div className="flex flex-col h-full bg-card/40 backdrop-blur-2xl border-l border-border/50 w-80 lg:w-96 shrink-0 shadow-2xl">
+      {/* Panel header */}
       <div className="p-4 border-b border-border/50 bg-background/20">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-accent/10 flex items-center justify-center text-accent shadow-inner">
+          <div className="w-10 h-10 rounded-2xl bg-accent/10 flex items-center justify-center text-accent shadow-inner shrink-0">
             <BrainCircuit className="w-5 h-5" />
           </div>
-          <div>
+          <div className="flex-1 min-w-0">
             <h3 className="font-bold text-sm tracking-tight">AI Insights</h3>
-            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-0.5">Note Summarizer</p>
+            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-0.5">
+              Note Summarizer
+            </p>
           </div>
+          {/* Close button */}
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="h-7 w-7 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-all shrink-0"
+              aria-label="Close AI panel"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
         </div>
       </div>
 
@@ -82,7 +98,9 @@ export function AIPanel({ isOpen = true, noteId }: AIPanelProps) {
                   <span className="w-2 h-2 rounded-full bg-accent animate-bounce [animation-delay:0.2s]" />
                   <span className="w-2 h-2 rounded-full bg-accent animate-bounce [animation-delay:0.4s]" />
                 </div>
-                <p className="text-xs text-muted-foreground font-medium animate-pulse">Analyzing your note...</p>
+                <p className="text-xs text-muted-foreground font-medium animate-pulse">
+                  Analyzing your note...
+                </p>
               </div>
             </div>
           )}
@@ -101,10 +119,15 @@ export function AIPanel({ isOpen = true, noteId }: AIPanelProps) {
                       <h4 className="font-bold text-sm">Suggested Title</h4>
                     </div>
                     <div className="flex items-center gap-2 p-3 rounded-xl bg-accent/5 border border-accent/10">
-                      <span className="text-sm font-semibold flex-1 truncate" title={suggestedTitle}>{suggestedTitle}</span>
-                      <Button 
-                        size="sm" 
-                        variant="secondary" 
+                      <span
+                        className="text-sm font-semibold flex-1 truncate"
+                        title={suggestedTitle}
+                      >
+                        {suggestedTitle}
+                      </span>
+                      <Button
+                        size="sm"
+                        variant="secondary"
                         onClick={handleApplyTitle}
                         disabled={isUpdating}
                         className="h-7 text-[10px] uppercase tracking-wider font-bold"
@@ -114,7 +137,7 @@ export function AIPanel({ isOpen = true, noteId }: AIPanelProps) {
                     </div>
                   </div>
                 )}
-                
+
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
                     <Zap className="w-4 h-4 text-accent" />
@@ -131,7 +154,7 @@ export function AIPanel({ isOpen = true, noteId }: AIPanelProps) {
       </ScrollArea>
 
       <div className="p-4 bg-background/20 border-t border-border/50">
-        <Button 
+        <Button
           onClick={handleSummarize}
           disabled={isLoading || !noteId}
           className="w-full bg-accent hover:bg-accent/90 text-accent-foreground font-bold shadow-sm h-10"
@@ -141,5 +164,25 @@ export function AIPanel({ isOpen = true, noteId }: AIPanelProps) {
         </Button>
       </div>
     </div>
+  );
+}
+
+/** Collapsed tab shown on the right edge when the AI panel is closed */
+export function AIOpenTab({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className="flex flex-col items-center justify-center gap-1.5 w-9 h-full bg-card/30 border-l border-border/50 hover:bg-accent/10 hover:border-accent/30 transition-all group shrink-0"
+      aria-label="Open AI panel"
+    >
+      <ChevronLeft className="w-3.5 h-3.5 text-muted-foreground group-hover:text-accent transition-colors" />
+      <span
+        className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground group-hover:text-accent transition-colors"
+        style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}
+      >
+        AI
+      </span>
+      <BrainCircuit className="w-3.5 h-3.5 text-muted-foreground group-hover:text-accent transition-colors" />
+    </button>
   );
 }

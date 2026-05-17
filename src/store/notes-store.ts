@@ -3,13 +3,13 @@ import { create } from "zustand";
 interface NotesState {
   selectedNoteId: string | undefined;
   searchQuery: string;
-  view: "all" | "archived";
+  view: "all" | "archived" | "shared";
   showAIPanel: boolean;
   isCreateDialogOpen: boolean;
 
   setSelectedNoteId: (id: string | undefined) => void;
   setSearchQuery: (query: string) => void;
-  setView: (view: "all" | "archived") => void;
+  setView: (view: "all" | "archived" | "shared") => void;
   setShowAIPanel: (show: boolean) => void;
   setIsCreateDialogOpen: (open: boolean) => void;
 }
@@ -27,3 +27,4 @@ export const useNotesStore = create<NotesState>()((set) => ({
   setShowAIPanel: (show) => set({ showAIPanel: show }),
   setIsCreateDialogOpen: (open) => set({ isCreateDialogOpen: open }),
 }));
+

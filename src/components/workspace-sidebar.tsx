@@ -9,10 +9,11 @@ import {
   Plus,
   Search,
   Archive,
-  Users,
   Pin,
   MoreHorizontal,
   FileText,
+  Users2,
+  ChevronRight,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -21,6 +22,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useSharedNotes, type SharedNote } from "@/hooks";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface WorkspaceSidebarProps {
   notes: any[];
@@ -33,8 +36,8 @@ interface WorkspaceSidebarProps {
   onToggleArchive?: (id: string) => void;
   searchQuery: string;
   onSearchChange: (query: string) => void;
-  view: "all" | "archived";
-  onViewChange: (view: "all" | "archived") => void;
+  view: "all" | "archived" | "shared";
+  onViewChange: (view: "all" | "archived" | "shared") => void;
 }
 
 export function WorkspaceSidebar({
@@ -51,6 +54,8 @@ export function WorkspaceSidebar({
   view,
   onViewChange,
 }: WorkspaceSidebarProps) {
+  const { data: sharedNotesData, isLoading: isLoadingShared } = useSharedNotes();
+  const sharedNotes = sharedNotesData?.data || [];
 
   const formatTime = (dateString: string) => {
     const date = new Date(dateString);
@@ -66,12 +71,14 @@ export function WorkspaceSidebar({
     return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
   };
 
-  const filteredNotes = notes.filter((n: any) => 
+  const filteredNotes = notes.filter((n: any) =>
     view === "archived" ? n.isArchived : !n.isArchived
   );
 
   const pinnedNotes = filteredNotes.filter((n: any) => n.isPinned);
   const unpinnedNotes = filteredNotes.filter((n: any) => !n.isPinned);
+
+  const archivedCount = notes.filter((n: any) => n.isArchived).length;
 
   return (
     <div className="flex flex-col h-full bg-muted/20 dark:bg-card/40 backdrop-blur-xl border-r border-border/50 w-72 lg:w-80 shrink-0">
@@ -104,90 +111,186 @@ export function WorkspaceSidebar({
 
       <ScrollArea className="flex-1">
         <div className="p-3">
-          {isLoading ? (
-            <div className="space-y-3 px-1">
-              {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="space-y-2">
-                  <Skeleton className="h-4 w-3/4 rounded" />
-                  <Skeleton className="h-3 w-1/2 rounded" />
-                </div>
-              ))}
-            </div>
-          ) : (
+          {/* My Notes */}
+          {view !== "shared" && (
             <>
-              {pinnedNotes.length > 0 && (
-                <div className="mb-6">
-                  <p className="text-[10px] font-bold text-muted-foreground/60 px-2 mb-3 uppercase tracking-widest flex items-center gap-2">
-                    <Pin className="w-2.5 h-2.5" /> Pinned
-                  </p>
-                  <div className="space-y-1">
-                    {pinnedNotes.map((note: any) => (
-                      <NoteItem
-                        key={note.id}
-                        note={note}
-                        isSelected={selectedNoteId === note.id}
-                        onSelect={() => onSelectNote?.(note.id)}
-                        onDelete={() => onDeleteNote?.(note.id)}
-                        onShare={() => onShareNote?.(note.id)}
-                        onToggleArchive={() => onToggleArchive?.(note.id)}
-                        formatTime={formatTime}
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              <div>
-                {pinnedNotes.length > 0 && (
-                  <p className="text-[10px] font-bold text-muted-foreground/60 px-2 mb-3 uppercase tracking-widest">
-                    All Notes
-                  </p>
-                )}
-                <div className="space-y-1">
-                  {unpinnedNotes.map((note: any) => (
-                    <NoteItem
-                      key={note.id}
-                      note={note}
-                      isSelected={selectedNoteId === note.id}
-                      onSelect={() => onSelectNote?.(note.id)}
-                      onDelete={() => onDeleteNote?.(note.id)}
-                      onShare={() => onShareNote?.(note.id)}
-                      onToggleArchive={() => onToggleArchive?.(note.id)}
-                      formatTime={formatTime}
-                    />
+              {isLoading ? (
+                <div className="space-y-3 px-1">
+                  {[1, 2, 3, 4].map((i) => (
+                    <div key={i} className="space-y-2">
+                      <Skeleton className="h-4 w-3/4 rounded" />
+                      <Skeleton className="h-3 w-1/2 rounded" />
+                    </div>
                   ))}
                 </div>
-              </div>
+              ) : (
+                <>
+                  {pinnedNotes.length > 0 && (
+                    <div className="mb-6">
+                      <p className="text-[10px] font-bold text-muted-foreground/60 px-2 mb-3 uppercase tracking-widest flex items-center gap-2">
+                        <Pin className="w-2.5 h-2.5" /> Pinned
+                      </p>
+                      <div className="space-y-1">
+                        {pinnedNotes.map((note: any) => (
+                          <NoteItem
+                            key={note.id}
+                            note={note}
+                            isSelected={selectedNoteId === note.id}
+                            onSelect={() => onSelectNote?.(note.id)}
+                            onDelete={() => onDeleteNote?.(note.id)}
+                            onShare={() => onShareNote?.(note.id)}
+                            onToggleArchive={() => onToggleArchive?.(note.id)}
+                            formatTime={formatTime}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  )}
 
-              {notes.length === 0 && (
-                <div className="text-center py-12 flex flex-col items-center justify-center">
-                  <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground/30 mb-3">
-                    <Search className="w-5 h-5" />
+                  <div>
+                    {pinnedNotes.length > 0 && (
+                      <p className="text-[10px] font-bold text-muted-foreground/60 px-2 mb-3 uppercase tracking-widest">
+                        All Notes
+                      </p>
+                    )}
+                    <div className="space-y-1">
+                      {unpinnedNotes.map((note: any) => (
+                        <NoteItem
+                          key={note.id}
+                          note={note}
+                          isSelected={selectedNoteId === note.id}
+                          onSelect={() => onSelectNote?.(note.id)}
+                          onDelete={() => onDeleteNote?.(note.id)}
+                          onShare={() => onShareNote?.(note.id)}
+                          onToggleArchive={() => onToggleArchive?.(note.id)}
+                          formatTime={formatTime}
+                        />
+                      ))}
+                    </div>
                   </div>
-                  <p className="text-xs font-medium text-muted-foreground">
-                    {searchQuery ? "No results found" : "No notes yet"}
-                  </p>
-                </div>
+
+                  {filteredNotes.length === 0 && (
+                    <div className="text-center py-12 flex flex-col items-center justify-center">
+                      <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground/30 mb-3">
+                        <Search className="w-5 h-5" />
+                      </div>
+                      <p className="text-xs font-medium text-muted-foreground">
+                        {searchQuery ? "No results found" : view === "archived" ? "No archived notes" : "No notes yet"}
+                      </p>
+                    </div>
+                  )}
+                </>
               )}
             </>
+          )}
+
+          {/* Shared With Me */}
+          {view === "shared" && (
+            <div className="space-y-1">
+              <p className="text-[10px] font-bold text-muted-foreground/60 px-2 mb-3 uppercase tracking-widest flex items-center gap-2">
+                <Users2 className="w-2.5 h-2.5" /> Shared with me
+              </p>
+
+              {isLoadingShared ? (
+                <div className="space-y-3 px-1">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="space-y-2">
+                      <Skeleton className="h-4 w-3/4 rounded" />
+                      <Skeleton className="h-3 w-1/2 rounded" />
+                    </div>
+                  ))}
+                </div>
+              ) : sharedNotes.length === 0 ? (
+                <div className="text-center py-12 flex flex-col items-center justify-center">
+                  <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground/30 mb-3">
+                    <Users2 className="w-5 h-5" />
+                  </div>
+                  <p className="text-xs font-medium text-muted-foreground">
+                    No notes shared with you yet
+                  </p>
+                  <p className="text-[11px] text-muted-foreground/60 mt-1">
+                    Ask a note owner to invite you
+                  </p>
+                </div>
+              ) : (
+                <AnimatePresence>
+                  {sharedNotes.map((note: SharedNote, idx) => (
+                    <motion.button
+                      key={note.id}
+                      initial={{ opacity: 0, y: 4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: idx * 0.04 }}
+                      onClick={() => onSelectNote?.(note.id)}
+                      className={`w-full text-left p-3 rounded-xl transition-all relative group ${
+                        selectedNoteId === note.id
+                          ? "bg-accent border border-accent/20 shadow-sm"
+                          : "hover:bg-muted/50 border border-transparent"
+                      }`}
+                    >
+                      {selectedNoteId === note.id && (
+                        <div className="absolute left-1 top-3 bottom-3 w-1 bg-accent rounded-full" />
+                      )}
+                      <div className="flex justify-between items-start mb-1">
+                        <h4
+                          className={`text-sm font-bold truncate pr-4 ${
+                            selectedNoteId === note.id
+                              ? "text-gray-500"
+                              : "text-foreground"
+                          }`}
+                        >
+                          {note.title || "Untitled Note"}
+                        </h4>
+                      </div>
+                      <div className="flex justify-between items-end gap-2">
+                        <p className="text-[11px] text-muted-foreground line-clamp-1 leading-relaxed">
+                          {note.content || "No content yet"}
+                        </p>
+                        <span className="text-[10px] font-medium text-muted-foreground/60 whitespace-nowrap pt-0.5">
+                          {formatTime(note.updatedAt)}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1.5 mt-1.5">
+                        <span
+                          className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wide ${
+                            note.collaboratorRole === "editor"
+                              ? "bg-accent/10 text-accent"
+                              : "bg-muted text-muted-foreground"
+                          }`}
+                        >
+                          {note.collaboratorRole}
+                        </span>
+                      </div>
+                    </motion.button>
+                  ))}
+                </AnimatePresence>
+              )}
+            </div>
           )}
         </div>
       </ScrollArea>
 
+      {/* Bottom nav */}
       <div className="p-3 border-t border-border/50">
         <div className="flex flex-col gap-1">
-          <SidebarAction 
-            icon={FileText} 
-            label="All Notes" 
+          <SidebarAction
+            icon={FileText}
+            label="My Notes"
             isActive={view === "all"}
             onClick={() => onViewChange("all")}
           />
-          <SidebarAction 
-            icon={Archive} 
-            label="Archived" 
+          <SidebarAction
+            icon={Archive}
+            label="Archived"
             isActive={view === "archived"}
-            count={notes.filter((n: any) => n.isArchived).length} 
+            count={archivedCount}
             onClick={() => onViewChange("archived")}
+          />
+          <SidebarAction
+            icon={Users2}
+            label="Shared with me"
+            isActive={view === "shared"}
+            count={sharedNotes.length}
+            onClick={() => onViewChange("shared")}
           />
         </div>
       </div>
@@ -283,11 +386,11 @@ function NoteItem({
 
 function SidebarAction({ icon: Icon, label, count, isActive, onClick }: any) {
   return (
-    <button 
+    <button
       onClick={onClick}
       className={`flex items-center justify-between px-3 py-2 rounded-lg transition-all w-full ${
-        isActive 
-          ? "bg-accent/10 text-accent font-bold" 
+        isActive
+          ? "bg-accent/10 text-accent font-bold"
           : "text-muted-foreground hover:bg-muted hover:text-foreground"
       }`}
     >

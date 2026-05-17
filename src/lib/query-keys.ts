@@ -5,5 +5,9 @@ export const queryKeys = {
 
   note: (id: string) => ["note", id],
 
+  collaborators: (noteId: string) => ["collaborators", noteId],
+
+  sharedNotes: ["shared-notes"],
+
   dashboard: ["dashboard"],
 };

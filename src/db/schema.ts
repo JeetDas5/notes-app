@@ -9,6 +9,7 @@ import {
   index,
   uniqueIndex,
   primaryKey,
+  pgEnum,
 } from "drizzle-orm/pg-core";
 
 export const users = pgTable(
@@ -27,7 +28,7 @@ export const users = pgTable(
   (table) => [
     index("name_idx").on(table.name),
     uniqueIndex("email_idx").on(table.email),
-  ],
+  ]
 );
 
 export const notes = pgTable(
@@ -68,7 +69,7 @@ export const notes = pgTable(
     index("title_idx").on(table.title),
     index("user_id_idx").on(table.userId),
     index("share_id_idx").on(table.shareId),
-  ],
+  ]
 );
 
 export const tags = pgTable(
@@ -77,7 +78,7 @@ export const tags = pgTable(
     id: uuid("id").defaultRandom().primaryKey(),
     name: varchar("name").notNull(),
   },
-  (table) => [uniqueIndex("tags_name_idx").on(table.name)],
+  (table) => [uniqueIndex("tags_name_idx").on(table.name)]
 );
 
 export const noteTags = pgTable(
@@ -98,7 +99,7 @@ export const noteTags = pgTable(
     pk: primaryKey({
       columns: [table.noteId, table.tagId],
     }),
-  }),
+  })
 );
 
 export const ai_generations = pgTable("ai_generations", {
@@ -125,8 +126,42 @@ export const ai_generations = pgTable("ai_generations", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+export const Role = pgEnum("role", ["editor", "viewer"]);
+
+export const notesCollborator = pgTable(
+  "notes_collaborator",
+  {
+    noteId: uuid("note_id")
+      .references(() => notes.id, {
+        onDelete: "cascade",
+      })
+      .notNull(),
+    userId: uuid("user_id")
+      .references(() => users.id, {
+        onDelete: "cascade",
+      })
+      .notNull(),
+    role: Role("role").default("editor").notNull(),
+
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => ({
+    pk: primaryKey({ columns: [table.noteId, table.userId] }),
+  })
+);
+
 export const notesRelations = relations(notes, ({ many }) => ({
   noteTags: many(noteTags),
+  collaborators: many(notesCollborator),
+}));
+
+export const usersRelations = relations(users, ({ many }) => ({
+  collaborations: many(notesCollborator),
 }));
 
 export const tagsRelations = relations(tags, ({ many }) => ({
@@ -144,3 +179,17 @@ export const noteTagsRelations = relations(noteTags, ({ one }) => ({
     references: [tags.id],
   }),
 }));
+
+export const notesCollboratorRelations = relations(
+  notesCollborator,
+  ({ one }) => ({
+    note: one(notes, {
+      fields: [notesCollborator.noteId],
+      references: [notes.id],
+    }),
+    user: one(users, {
+      fields: [notesCollborator.userId],
+      references: [users.id],
+    }),
+  })
+);

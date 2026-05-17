@@ -5,8 +5,16 @@ import { useParams, useRouter } from "next/navigation";
 import { WorkspaceHeader } from "@/components/workspace-header";
 import { WorkspaceSidebar } from "@/components/workspace-sidebar";
 import { EditorPanel } from "@/components/editor-panel";
-import { AIPanel } from "@/components/ai-panel";
-import { useNotes, useCreateNote, useDebounce, useDeleteNote, useUpdateNoteStatus } from "@/hooks";
+import { AIPanel, AIOpenTab } from "@/components/ai-panel";
+import {
+  useNotes,
+  useCreateNote,
+  useDebounce,
+  useDeleteNote,
+  useUpdateNoteStatus,
+  useCurrentUser,
+  useSharedNotes,
+} from "@/hooks";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Plus } from "lucide-react";
 import { CreateNoteDialog } from "@/components/create-note-dialog";
@@ -18,6 +26,9 @@ export function NotesWorkspace() {
   const router = useRouter();
   const id = params?.id as string | undefined;
 
+  const { data: userData } = useCurrentUser();
+  const currentUserId = userData?.user?.id;
+
   const {
     selectedNoteId,
     setSelectedNoteId,
@@ -26,6 +37,7 @@ export function NotesWorkspace() {
     view,
     setView,
     showAIPanel,
+    setShowAIPanel,
     isCreateDialogOpen,
     setIsCreateDialogOpen,
   } = useNotesStore();
@@ -36,11 +48,18 @@ export function NotesWorkspace() {
     query: debouncedSearchQuery,
     archived: view === "archived",
   });
-  const { mutate: createNote, isPending: isCreateNotePending } = useCreateNote();
+  const { data: sharedNotesData, isLoading: isLoadingShared } =
+    useSharedNotes();
+  const { mutate: createNote, isPending: isCreateNotePending } =
+    useCreateNote();
   const { mutate: deleteNote } = useDeleteNote();
   const { mutate: updateNoteStatus } = useUpdateNoteStatus();
 
-  const notes = notesData?.data || [];
+  const ownNotes = notesData?.data || [];
+  const sharedNotes = sharedNotesData?.data || [];
+
+  // All notes available to select from (own + shared)
+  const allNotes = [...ownNotes, ...sharedNotes];
 
   // Update selected note when URL param changes
   useEffect(() => {
@@ -51,26 +70,59 @@ export function NotesWorkspace() {
 
   // Handle initial selection if no ID in URL
   useEffect(() => {
-    if (notes.length > 0 && !selectedNoteId && !searchQuery && !id) {
-      setSelectedNoteId(notes[0].id);
-      router.replace(`/notes/${notes[0].id}`);
+    if (ownNotes.length > 0 && !selectedNoteId && !searchQuery && !id) {
+      setSelectedNoteId(ownNotes[0].id);
+      router.replace(`/notes/${ownNotes[0].id}`);
     }
-  }, [notes, selectedNoteId, searchQuery, id, router]);
+  }, [ownNotes, selectedNoteId, searchQuery, id, router]);
 
-  const selectedNote = notes.find((n: any) => n.id === selectedNoteId);
+  // Find selected note from all sources
+  const selectedNote = allNotes.find((n: any) => n.id === selectedNoteId);
+
+  // Determine ownership and collaboration role
+  const isOwner = selectedNote ? selectedNote.userId === currentUserId : false;
+
+  // If it's a shared note, find the collaborator role
+  const sharedNote = sharedNotes.find((n: any) => n.id === selectedNoteId);
+  const collaboratorRole: "editor" | "viewer" | null = isOwner
+    ? null
+    : sharedNote
+    ? (sharedNote.collaboratorRole as "editor" | "viewer")
+    : null;
+
+  // Viewer cannot edit
+  const isReadOnly = !isOwner && collaboratorRole === "viewer";
+
+  // Handle missing or inaccessible note
+  const isAllLoading = isNotesLoading || isLoadingShared;
+
+  useEffect(() => {
+    if (!isAllLoading && selectedNoteId && !selectedNote) {
+      toast.error("Note not found");
+      setSelectedNoteId(undefined);
+      router.replace("/notes");
+    }
+  }, [isAllLoading, selectedNoteId, selectedNote, router, setSelectedNoteId]);
 
   const handleCreateNote = () => {
     setIsCreateDialogOpen(true);
   };
 
-  const handleConfirmCreate = (title: string, content: string, tags: string[]) => {
-    createNote({ title, content, tags }, {
-      onSuccess: (data) => {
-        setSelectedNoteId(data.data.id);
-        setIsCreateDialogOpen(false);
-        router.push(`/notes/${data.data.id}`);
+  const handleConfirmCreate = (
+    title: string,
+    content: string,
+    tags: string[]
+  ) => {
+    createNote(
+      { title, content, tags },
+      {
+        onSuccess: (data) => {
+          setSelectedNoteId(data.data.id);
+          setIsCreateDialogOpen(false);
+          router.push(`/notes/${data.data.id}`);
+        },
       }
-    });
+    );
   };
 
   const handleSelectNote = (noteId: string) => {
@@ -90,7 +142,7 @@ export function NotesWorkspace() {
   };
 
   const handleShareNote = (noteId: string) => {
-    const note = notes.find((n: any) => n.id === noteId);
+    const note = ownNotes.find((n: any) => n.id === noteId);
     if (!note) return;
 
     if (!note.isPublic) {
@@ -103,7 +155,7 @@ export function NotesWorkspace() {
   };
 
   const handleToggleArchive = (noteId: string) => {
-    const note = notes.find((n: any) => n.id === noteId);
+    const note = ownNotes.find((n: any) => n.id === noteId);
     if (!note) return;
 
     updateNoteStatus(
@@ -120,15 +172,20 @@ export function NotesWorkspace() {
     return <NotesSkeleton />;
   }
 
+  const sidebarNotes = view === "shared" ? [] : ownNotes;
+
   return (
     <div className="flex h-screen flex-col bg-background">
       <WorkspaceHeader
         noteTitle={selectedNote?.title || "No Note Selected"}
+        noteId={selectedNoteId}
+        isOwner={isOwner}
+        collaboratorRole={collaboratorRole}
       />
 
       <div className="flex flex-1 overflow-hidden">
         <WorkspaceSidebar
-          notes={notes}
+          notes={sidebarNotes}
           isLoading={isNotesLoading}
           selectedNoteId={selectedNoteId}
           onSelectNote={handleSelectNote}
@@ -138,8 +195,8 @@ export function NotesWorkspace() {
           onToggleArchive={handleToggleArchive}
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
-          view={view}
-          onViewChange={setView}
+          view={view as "all" | "archived" | "shared"}
+          onViewChange={(v) => setView(v as "all" | "archived")}
         />
 
         <div className="flex-1 flex flex-col min-w-0 bg-background/50 dark:bg-background/20">
@@ -148,8 +205,11 @@ export function NotesWorkspace() {
               key={selectedNote.id}
               initialTitle={selectedNote.title || ""}
               initialContent={selectedNote.content || ""}
-              initialTags={selectedNote.noteTags?.map((nt: any) => nt.tag?.name) || []}
+              initialTags={
+                selectedNote.noteTags?.map((nt: any) => nt.tag?.name) || []
+              }
               noteId={selectedNote.id}
+              readOnly={isReadOnly}
             />
           ) : (
             <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground p-8 text-center">
@@ -160,20 +220,25 @@ export function NotesWorkspace() {
                 {selectedNoteId ? "Loading note..." : "No note selected"}
               </h3>
               <p className="max-w-xs mt-2 text-sm">
-                {selectedNoteId 
-                  ? "We're just fetching your new note." 
+                {selectedNoteId
+                  ? "We're just fetching your new note."
                   : "Select a note from the sidebar or create a new one to start your masterpiece."}
               </p>
             </div>
           )}
         </div>
 
-        {showAIPanel && selectedNote && (
-          <AIPanel 
-            isOpen={showAIPanel} 
-            noteId={selectedNote.id}
-          />
-        )}
+        {/* AI Panel — show panel or collapsed tab */}
+        {selectedNote &&
+          (showAIPanel ? (
+            <AIPanel
+              isOpen={true}
+              onClose={() => setShowAIPanel(false)}
+              noteId={selectedNote.id}
+            />
+          ) : (
+            <AIOpenTab onClick={() => setShowAIPanel(true)} />
+          ))}
       </div>
 
       <CreateNoteDialog
