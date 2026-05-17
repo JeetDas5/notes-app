@@ -1,4 +1,4 @@
-# 📝 Collaborative AI Notes App
+# Collaborative AI Notes App
 
 A premium, state-of-the-art **Real-Time Collaborative Notes Management Application** enhanced with **AI-Powered Insights**. Built using Next.js 16 (App Router), React 19, Tailwind CSS 4, Drizzle ORM, Neon PostgreSQL, Socket.io, and OpenAI.
 
@@ -6,26 +6,26 @@ This application allows multiple users to collaborate on notes simultaneously wi
 
 ---
 
-## ✨ Key Features
+## Key Features
 
-### 🔐 Secure Authentication & Session Management
+### Secure Authentication & Session Management
 * **Argon2 Hashing**: Cryptographically secure password hashing.
 * **JWT Authorization**: Custom JSON Web Token stateless sessions.
 * **Unified Profile Navigation**: Accessible profile dropdown for user email details and fast logout across pages.
 
-### 👥 Real-Time Collaborative Workspace
+### Real-Time Collaborative Workspace
 * **Socket.io Integration**: Low-latency, full-duplex WebSocket server wrapper for high-frequency text synchronization.
 * **Collaborator Presence**: Visual headers displaying other active users working on the same note.
 * **Live Cursor Tracking**: Real-time cursor positions displayed using individual user-assigned colors.
 * **Access Control & Roles**: Assign `Editor` or `Viewer` permissions to collaborators. Viewers are restricted from making changes, and their roles are dynamically represented.
 
-### 🤖 OpenAI-Powered Insights
+### OpenAI-Powered Insights
 * **AI Summary Panel**: Dynamic, single-click summaries generated from note content.
 * **Action Items Extraction**: Extract actionable to-do lists from the text automatically.
 * **AI-Suggested Titles**: Generates premium title recommendations based on text semantics.
 * **Generation History**: AI prompts and responses are tracked and cached.
 
-### 📂 Notes Organization & Search
+### Notes Organization & Search
 * **Note Archiving**: Archive/unarchive notes with a single click.
 * **Tag Management**: Dynamically create, assign, and manage multi-tag categorization.
 * **Global Search**: Search through owned and shared notes on the dashboard dynamically.
@@ -33,7 +33,7 @@ This application allows multiple users to collaborate on notes simultaneously wi
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 | Category | Technology | Purpose |
 | :--- | :--- | :--- |
@@ -49,11 +49,11 @@ This application allows multiple users to collaborate on notes simultaneously wi
 
 ---
 
-## 🏛️ System Architecture
+## System Architecture
 
 The application is structured around a **monolithic Next.js codebase** hosted on a custom Node.js HTTP server. This server boots Next.js alongside a Socket.IO WebSocket server, allowing regular REST API endpoints and low-latency real-time collaboration channels to coexist on the same port.
 
-### 🔄 Client-Server Communication Flow
+### Client-Server Communication Flow
 
 ```mermaid
 graph TD
@@ -64,7 +64,7 @@ graph TD
     SocketServer <-->|In-Memory Rooms| SyncState[Live Cursor Presence & Document Sync]
 ```
 
-### 🗄️ Database Entity-Relationship Diagram (ERD)
+### Database Entity-Relationship Diagram (ERD)
 
 ```mermaid
 erDiagram
@@ -130,7 +130,7 @@ erDiagram
 
 ---
 
-## 🔑 Environment Variables Configuration
+## Environment Variables Configuration
 
 To run the application, create a `.env` file in the root directory. You can copy the template from `.env.example`:
 
@@ -143,7 +143,7 @@ To run the application, create a `.env` file in the root directory. You can copy
 
 ---
 
-## 🚀 How to Start the Project
+## How to Start the Project
 
 ### 1. Prerequisites
 Ensure you have **Node.js** (version 20 or higher) and a package manager (**Bun**, **NPM**, or **PNPM**) installed.
@@ -151,7 +151,7 @@ Ensure you have **Node.js** (version 20 or higher) and a package manager (**Bun*
 ### 2. Clone and Install Dependencies
 ```bash
 # Clone the repository
-git clone <repository-url>
+git clone <https://github.com/JeetDas5/notes-app>
 cd notes-app
 
 # Install project packages
@@ -174,6 +174,7 @@ bunx drizzle-kit push
 
 Alternatively, you can run Drizzle's migration commands to keep track of schema version control:
 ```bash
+# Generate schema migrations
 npx drizzle-kit generate
 npx drizzle-kit migrate
 ```
@@ -203,37 +204,34 @@ npm run start:socket
 
 ---
 
-## 📸 Screenshots (Coming Soon)
+## Running Tests
 
-Here are the placeholders for primary application views. Once visual elements are recorded or screens are finalized, updated screenshots can be added here.
+The application includes a comprehensive test suite built with Vitest, covering crucial areas such as validation schemas, JWT utilities, password hashing, and AI prompt generation.
+
+To run the unit tests, use the following commands:
+
+```bash
+# Run all tests once
+npm run test --run
+# or using Bun:
+bun test --run
+
+# Run tests in interactive watch mode
+npm run test
+# or using Bun:
+bun test
+```
+
+---
+
+## Screenshots
+
+Here are the primary application views showing the dashboard in dark and light modes, as well as the collaborative notes editor and AI insights panel.
 
 ````carousel
-```
-============================================
-              LANDING PAGE
-============================================
-* Modern hero section with glowing borders.
-* Comprehensive features list.
-* CTA and theme switches.
-```
+![Dashboard Dark Mode](public/dashboard_dark.png)
 <!-- slide -->
-```
-============================================
-            DASHBOARD VIEW
-============================================
-* Interactive sidebar (My Notes, Archive).
-* User Avatar Profile Dropdown with Logout.
-* Tag cloud filters.
-* Note search filter input.
-```
+![Dashboard Light Mode](public/dashboard_light.png)
 <!-- slide -->
-```
-============================================
-         COLLABORATIVE WORKSPACE
-============================================
-* Shared editor.
-* Real-time cursor coordinates and colors.
-* Collaborative indicators and role badge.
-* Summarize panel.
-```
+![Collaborative Workspace](public/notes_page.png)
 ````
