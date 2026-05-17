@@ -9,5 +9,7 @@ export const queryKeys = {
 
   sharedNotes: ["shared-notes"],
 
+  aiCount: ["ai-count"],
+
   dashboard: ["dashboard"],
 };
