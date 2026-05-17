@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 
 const JWT_SECRET = process.env.JWT_SECRET!;
 
-const AUTH_ROUTES = ["/login", "/signup"];
+const AUTH_ROUTES = ["/signin", "/signup"];
 
 const PROTECTED_ROUTES = ["/dashboard", "/notes"];
 
@@ -36,12 +36,12 @@ export function proxy(req: NextRequest) {
   }
 
   if (isProtectedRoute && !isAuthenticated) {
-    return NextResponse.redirect(new URL("/login", req.url));
+    return NextResponse.redirect(new URL("/signin", req.url));
   }
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/login", "/signup", "/dashboard/:path*", "/notes/:path*"],
+  matcher: ["/signin", "/signup", "/dashboard/:path*", "/notes/:path*"],
 };

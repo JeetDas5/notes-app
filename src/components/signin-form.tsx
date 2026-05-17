@@ -6,10 +6,22 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useSignIn } from "@/hooks";
+import { Eye, EyeOff } from "lucide-react";
 
 export function SignInForm() {
   const { mutate: signIn, isPending: isLoading } = useSignIn();
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [showPassword, setShowPassword] = useState(false);
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const isFormFilled = formData.email.trim() !== "" && formData.password !== "";
 
   const validateForm = (formData: FormData) => {
     const newErrors: Record<string, string> = {};
@@ -41,7 +53,6 @@ export function SignInForm() {
     signIn({ email, password });
   };
 
-
   return (
     <div className="space-y-6">
       <div className="space-y-2 text-center">
@@ -58,7 +69,9 @@ export function SignInForm() {
             id="email"
             name="email"
             type="email"
-            placeholder="you@example.com"
+            placeholder="Enter your email"
+            value={formData.email}
+            onChange={handleChange}
             disabled={isLoading}
           />
           {errors.email && (
@@ -68,18 +81,29 @@ export function SignInForm() {
 
         <div className="space-y-2">
           <Label htmlFor="password">Password</Label>
-          <Input
-            id="password"
-            name="password"
-            type="password"
-            placeholder="••••••••"
-            disabled={isLoading}
-          />
+          <div className="relative">
+            <Input
+              id="password"
+              name="password"
+              type={showPassword ? "text" : "password"}
+              placeholder="Enter your password"
+              value={formData.password}
+              onChange={handleChange}
+              disabled={isLoading}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer"
+            >
+              {showPassword ? <EyeOff /> : <Eye />}
+            </button>
+          </div>
           {errors.password && (
             <p className="text-xs text-destructive">{errors.password}</p>
           )}
         </div>
-
+        {/* 
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2"></div>
           <Link
@@ -88,11 +112,13 @@ export function SignInForm() {
           >
             Forgot password?
           </Link>
-        </div>
+        </div> */}
 
         <Button
           type="submit"
-          className="w-full bg-gray-500/80 hover:bg-gray-400/80 cursor-pointer"
+          className={`w-full bg-accent text-black dark:text-white hover:bg-accent/90 ${
+            isFormFilled ? "cursor-pointer" : "cursor-not-allowed"
+          }`}
           disabled={isLoading}
         >
           {isLoading ? "Signing in..." : "Sign in"}

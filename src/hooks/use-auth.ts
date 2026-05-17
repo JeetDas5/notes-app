@@ -27,16 +27,13 @@ export function useSignIn() {
 }
 
 export function useSignUp() {
-  const router = useRouter();
-
   return useMutation({
     mutationFn: async (data: any) => {
       const response = await axiosInstance.post("/api/auth/signup", data);
       return response.data;
     },
     onSuccess: () => {
-      toast.success("Account created successfully. Please sign in.");
-      router.push("/signin");
+      toast.success("Account created successfully");
     },
     onError: (error: Error) => {
       toast.error(error.message);

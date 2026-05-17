@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -5,7 +6,13 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { useCurrentUser, useNotes, useDebounce, useUpdateNoteStatus } from "@/hooks";
+import {
+  useCurrentUser,
+  useNotes,
+  useDebounce,
+  useUpdateNoteStatus,
+  useLogout,
+} from "@/hooks";
 import { Input } from "@/components/ui/input";
 import {
   Plus,
@@ -17,6 +24,8 @@ import {
   NotebookPen,
   Tag,
   MoreHorizontal,
+  ChevronDown,
+  LogOut,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -27,6 +36,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
@@ -42,6 +52,7 @@ export default function DashboardPage() {
   });
   const { mutate: deleteNote } = useDeleteNote();
   const { mutate: updateNoteStatus } = useUpdateNoteStatus();
+  const { mutate: logout } = useLogout();
 
   const { data: allNotesData } = useNotes({});
   const allNotes = allNotesData?.data || [];
@@ -77,21 +88,31 @@ export default function DashboardPage() {
     );
   };
 
-  const tagCounts = allNotes.reduce((acc: Record<string, number>, note: any) => {
-    note.noteTags?.forEach((nt: any) => {
-      const tagName = nt.tag?.name;
-      if (tagName) {
-        acc[tagName] = (acc[tagName] || 0) + 1;
-      }
-    });
-    return acc;
-  }, {});
+  const tagCounts = allNotes.reduce(
+    (acc: Record<string, number>, note: any) => {
+      note.noteTags?.forEach((nt: any) => {
+        const tagName = nt.tag?.name;
+        if (tagName) {
+          acc[tagName] = (acc[tagName] || 0) + 1;
+        }
+      });
+      return acc;
+    },
+    {}
+  );
 
   const mostUsedTags = Object.entries(tagCounts)
     .sort((a: any, b: any) => b[1] - a[1])
     .slice(0, 10);
 
   const user = userData?.user;
+  const userInitials = (user?.name || user?.email || "U")
+    .split("@")[0]
+    .split(".")
+    .map((part: string) => part.charAt(0).toUpperCase())
+    .join("")
+    .slice(0, 2);
+
   const notes = (notesData?.data || []).filter((n: any) => !n.isArchived);
 
   useEffect(() => {
@@ -124,7 +145,12 @@ export default function DashboardPage() {
     });
   };
 
-  if ((isUserLoading || isNotesLoading) && !notesData && !searchQuery && !selectedTag) {
+  if (
+    (isUserLoading || isNotesLoading) &&
+    !notesData &&
+    !searchQuery &&
+    !selectedTag
+  ) {
     return <DashboardSkeleton />;
   }
 
@@ -160,11 +186,37 @@ export default function DashboardPage() {
               </div>
               <ThemeToggle />
               <div className="h-4 w-px bg-border/50" />
-              <Avatar className="h-8 w-8 border border-border/50">
-                <AvatarFallback className="bg-accent/10 text-accent text-xs font-bold uppercase">
-                  {user?.name?.[0] || user?.email?.[0] || "U"}
-                </AvatarFallback>
-              </Avatar>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="flex items-center gap-2 hover:bg-muted/50 rounded-lg pl-1 pr-2 py-1 transition-all outline-none border border-transparent focus:border-accent/20 cursor-pointer">
+                    <Avatar className="h-8 w-8 border border-border/50">
+                      <AvatarFallback className="bg-accent/10 text-gray-500 text-xs font-bold uppercase">
+                        {userInitials}
+                      </AvatarFallback>
+                    </Avatar>
+                    <ChevronDown className="w-3 h-3 text-muted-foreground" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  align="end"
+                  className="w-56 p-1.5 rounded-xl border-border/50 shadow-2xl"
+                >
+                  <div className="px-2 py-2 mb-1">
+                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">
+                      Signed in as
+                    </p>
+                    <p className="text-sm font-bold truncate">{user?.email}</p>
+                  </div>
+                  <DropdownMenuSeparator className="bg-border/50" />
+                  <DropdownMenuItem
+                    onClick={() => logout()}
+                    className="rounded-lg cursor-pointer py-2 text-destructive focus:bg-destructive/10 focus:text-destructive"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    <span className="text-xs font-bold">Sign out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </div>
@@ -257,7 +309,9 @@ export default function DashboardPage() {
                   key={tag}
                   variant={selectedTag === tag ? "default" : "outline"}
                   size="sm"
-                  onClick={() => setSelectedTag(selectedTag === tag ? null : tag)}
+                  onClick={() =>
+                    setSelectedTag(selectedTag === tag ? null : tag)
+                  }
                   className={`rounded-full px-4 h-8 text-xs font-bold transition-all ${
                     selectedTag === tag
                       ? "bg-accent text-accent-foreground shadow-lg shadow-accent/20"
