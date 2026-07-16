@@ -383,3 +383,5 @@ Here are the primary application views showing the dashboard in dark and light m
 ![Dashboard Light Mode](public/dashboard_light.png)
 
 ![Collaborative Workspace](public/notes_page.png)
+
+Built by Jeet Das 
