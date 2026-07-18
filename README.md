@@ -364,12 +364,12 @@ To run the unit tests, use the following commands:
 # Run all tests once
 npm run test --run
 # or using Bun:
-bun test --run
+bun run test --run
 
 # Run tests in interactive watch mode
 npm run test
 # or using Bun:
-bun test
+bun run test
 ```
 
 ---
